@@ -56,7 +56,7 @@ def _make_coinbase_raw_data_segwit(witness_commitment): # txn_files ::> (List) o
     #     reward += fees(txnId)
 
     # VERSION #
-    ver = 4
+    ver = 1
     raw_data += f"{convert.to_little_endian(ver, 4)}"
 
     # MARKER + FLAG #
