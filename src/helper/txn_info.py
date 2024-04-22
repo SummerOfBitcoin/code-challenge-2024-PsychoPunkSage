@@ -168,6 +168,35 @@ def wtxid(txn_id):
             txn_hash += f"{convert.to_little_endian(data['locktime'], 4)}"
     return txn_hash
 
+def txid_dict(txn_dict):
+    txn_hash = ""
+    data = txn_dict
+    # Version
+    txn_hash += f"{convert.to_little_endian(data['version'], 4)}"
+
+    # No. of inputs:
+    txn_hash += f"{str(convert.to_compact_size(len(data['vin'])))}"
+    # Inputs
+    for iN in data["vin"]:
+        txn_hash += f"{bytes.fromhex(iN['txid'])[::-1].hex()}"
+        txn_hash += f"{convert.to_little_endian(iN['vout'], 4)}"
+        txn_hash += f"{convert.to_compact_size(len(iN['scriptsig'])//2)}"
+        txn_hash += f"{iN['scriptsig']}"
+        txn_hash += f"{convert.to_little_endian(iN['sequence'], 4)}"
+
+    # No. of outputs
+    txn_hash += f"{str(convert.to_compact_size(len(data['vout'])))}"
+
+    # Outputs
+    for out in data["vout"]:
+        txn_hash += f"{convert.to_little_endian(out['value'], 8)}"
+        txn_hash += f"{convert.to_compact_size(len(out['scriptpubkey'])//2)}"
+        txn_hash += f"{out['scriptpubkey']}"
+
+    # Locktime
+    txn_hash += f"{convert.to_little_endian(data['locktime'], 4)}"
+    return txn_hash
+
 # filename = "e4020c97eb2eb68055362d577e7068a128ceb887a33260062bb3ba2820b9bd30"
 # filename = "c1b27a173feead93944952612148c8972e5837d4d564dda8b96639561402ad2e"
 # filename = "0a8b21af1cfcc26774df1f513a72cd362a14f5a598ec39d915323078efb5a240"
