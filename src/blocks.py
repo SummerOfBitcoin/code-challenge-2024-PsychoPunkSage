@@ -1,3 +1,4 @@
+import binascii
 import os
 import json
 import time
@@ -24,7 +25,7 @@ def raw_block_data(txn_files, nonce):
 
     ## Merkle root :32 ##
     actual_txn_ids = [tx_id.get_txn_id(ID) for ID in txn_files]
-    calc_merkle_root = str(merkle.merkleCalculator(actual_txn_ids), 'utf-8')
+    calc_merkle_root = str(merkle.generate_merkle_root(actual_txn_ids), 'utf-8')
     print(len(calc_merkle_root))
     block_header += f"{calc_merkle_root}"
 
@@ -77,7 +78,7 @@ def mine_block(transaction_files):
     coinbase_hex, coinbase_txid = coinbase.coinbase_txn_id(witness_commitment=witness_commitment)
 
     # Calculate the Merkle root of the transactions
-    merkle_root = merkle.merkleCalculator([coinbase_txid]+txids).hex()
+    merkle_root = merkle.generate_merkle_root([coinbase_txid]+txids)
 
     # Construct the block header
     block_version_bytes = BLOCK_VERSION.to_bytes(4, "little")
@@ -181,7 +182,27 @@ def read_transactions():
         print("Error:", e)
         return None
 
+def validate_header(header, target_difficulty):
+    header_bytes = binascii.unhexlify(header)
+    if len(header_bytes) != 80:
+        print(f"header_bytes::> {len(header_bytes)}")
+        raise ValueError("Invalid header length")
 
+    # Calculate double SHA256 hash of the block header
+    h1 = hashlib.sha256(header_bytes).digest()
+    h2 = hashlib.sha256(h1).digest()
+
+    # Reverse the hash
+    reversed_hash = h2[::-1]
+
+    # Convert hash and target difficulty to integers
+    reversed_hash_int = int.from_bytes(reversed_hash, byteorder="big")
+    target_int = int(target_difficulty, 16)
+
+    # Check if the hash is less than or equal to the target difficulty
+    if reversed_hash_int > target_int:
+        raise ValueError("Block does not meet target difficulty")
+    
 def main():
     # Read transaction files
     transactions = read_transactions()
@@ -202,6 +223,8 @@ def main():
     # Mine the block
     block_header, txids, nonce, coinbase_tx_hex, coinbase_txid = mine_block(transactions)
 
+    validate_header(block_header, DIFFICULTY)
+
     # Validate the block
     # validate_block(coinbase_tx, txids, transactions)
     # Corrected writing to output file
@@ -216,6 +239,7 @@ def main():
     # print(f"Total p2pkh: {p2pkh}")
     # print(f"Total p2wpkh: {p2wpkh}")
     # print(f"Total p2sh: {p2sh}")
+
 
 
 if __name__ == "__main__":

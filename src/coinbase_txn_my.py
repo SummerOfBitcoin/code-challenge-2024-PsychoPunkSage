@@ -2,6 +2,7 @@ import binascii
 import hashlib
 import json
 import os
+import helper.merkle_root as merkle
 
 WTXID_COINBASE = bytes(32).hex()
 
@@ -157,27 +158,6 @@ p2pkh ::> 0a331187bb44a28b342bd2fdfd2ff58147f0e4e43444b5efd89c71f3176caea6.json 
 p2wpkh::> 0a3fa2941f316cbf05d7a708f180a4f7cd8034f33ccfea77091252354da41e61.json :: 0a3fa2941f316cbf05d7a708f180a4f7cd8034f33ccfea77091252354da41e61
 '''
 
-###########################################################################
-# MERKLE ROOT
-def hashIt(firstTxHash, secondTxHash):
-    unhex_reverse_first = binascii.unhexlify(firstTxHash)[::-1]
-    unhex_reverse_second = binascii.unhexlify(secondTxHash)[::-1]
-
-    concat_inputs = unhex_reverse_first+unhex_reverse_second
-    first_hash_inputs = hashlib.sha256(concat_inputs).digest()
-    final_hash_inputs = hashlib.sha256(first_hash_inputs).digest()
-    return binascii.hexlify(final_hash_inputs[::-1])
- 
-def merkleCalculator(hashList):
-    if len(hashList) == 1:
-        return hashList[0]
-    newHashList = []
-    for i in range(0, len(hashList)-1, 2):
-        newHashList.append(hashIt(hashList[i], hashList[i+1]))
-    if len(hashList) % 2 == 1: # odd, hash last item twice
-        newHashList.append(hashIt(hashList[-1], hashList[-1]))
-    return merkleCalculator(newHashList)
-###########################################################################
 
 def calculate_witness_commitment(txn_files):
     """
@@ -188,15 +168,15 @@ def calculate_witness_commitment(txn_files):
         w_txid = to_hash256(wtxid(tx))
         wtxids.append(w_txid)
     # wtxids.insert(0, "0000000000000000000000000000000000000000000000000000000000000000")
-    witness_root = merkleCalculator(wtxids).hex()
+    witness_root = merkle.generate_merkle_root(wtxids)
 
     # Convert the WITNESS_RESERVED_VALUE to hex string
     WITNESS_RESERVED_VALUE_HEX = '0000000000000000000000000000000000000000000000000000000000000000'
 
     # WITNESS_RESERVED_VALUE_BYTES = bytes.fromhex(WITNESS_RESERVED_VALUE_HEX)
     witness_reserved_value_hex = WITNESS_RESERVED_VALUE_HEX
-    print(witness_reserved_value_hex)
-    print(witness_root)
+    # print(witness_reserved_value_hex)
+    # print(witness_root)
 
     # Concatenate the witness root and the witness reserved value
     combined_data = witness_root + witness_reserved_value_hex
