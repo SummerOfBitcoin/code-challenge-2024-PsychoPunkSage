@@ -12,7 +12,7 @@ import helper.txn_info as txinfo
 OUTPUT_FILE = "output.txt"
 DIFFICULTY = "0000ffff00000000000000000000000000000000000000000000000000000000"
 BLOCK_VERSION = 4
-MEMPOOL_DIR = "mempool"
+MEMPOOL_DIR = "test_mempool"
 
 def raw_block_data(txn_files, nonce):
     block_header = ""
@@ -178,7 +178,7 @@ def read_transactions():
             with open(os.path.join(mempool_dir, filename), "r") as file:
                 # locktime ka locha #
                 txn_ids.append(filename[:-5])
-        return txn_ids[:500]
+        return txn_ids[:5]
     except Exception as e:
         print("Error:", e)
         return None
