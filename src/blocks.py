@@ -24,7 +24,7 @@ def raw_block_data(txn_files, nonce):
     block_header += f"{prev_block_hash}"
 
     ## Merkle root :32 ##
-    actual_txn_ids = [tx_id.get_txn_id(ID) for ID in txn_files]
+    actual_txn_ids = [coinbase.txid(ID) for ID in txn_files]
     calc_merkle_root = str(merkle.generate_merkle_root(actual_txn_ids), 'utf-8')
     print(len(calc_merkle_root))
     block_header += f"{calc_merkle_root}"
@@ -69,7 +69,7 @@ def mine_block(transaction_files):
     Mine a block with the given transactions.
     """
     nonce = 0
-    txids = [tx_id.get_txn_id(tx) for tx in transaction_files]
+    txids = [coinbase.txid(tx) for tx in transaction_files]
 
     # Create a coinbase transaction with no inputs and two outputs: one for the block reward and one for the witness commitment
     witness_commitment = coinbase.calculate_witness_commitment(transaction_files)
