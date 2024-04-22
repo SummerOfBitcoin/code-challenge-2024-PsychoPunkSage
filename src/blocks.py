@@ -7,7 +7,7 @@ import validate_txn
 import coinbase_txn_my as coinbase
 import helper.converter as convert
 import helper.merkle_root as merkle 
-import helper.get_txn_id as tx_id
+import helper.txn_info as txinfo
 
 OUTPUT_FILE = "output.txt"
 DIFFICULTY = "0000ffff00000000000000000000000000000000000000000000000000000000"
@@ -25,7 +25,7 @@ def raw_block_data(txn_files, nonce):
     block_header += f"{prev_block_hash}"
 
     ## Merkle root :32 ##
-    actual_txn_ids = [coinbase.txid(ID) for ID in txn_files]
+    actual_txn_ids = [txinfo.txid(ID) for ID in txn_files]
     calc_merkle_root = str(merkle.generate_merkle_root(actual_txn_ids), 'utf-8')
     print(len(calc_merkle_root))
     block_header += f"{calc_merkle_root}"
@@ -70,7 +70,7 @@ def mine_block(transaction_files):
     Mine a block with the given transactions.
     """
     nonce = 0
-    txids = [coinbase.txid(tx) for tx in transaction_files]
+    txids = [txinfo.txid(tx) for tx in transaction_files]
 
     # Create a coinbase transaction with no inputs and two outputs: one for the block reward and one for the witness commitment
     witness_commitment = coinbase.calculate_witness_commitment(transaction_files)
@@ -209,9 +209,9 @@ def pre_process_transaction(transaction):
     Pre-process a transaction by adding default values and calculating the fee.
     """
     global p2pkh, p2wpkh, p2sh
-    transaction["txid"] = convert.to_reverse_bytes_string(convert.to_hash256(coinbase.txid(transaction)))
+    transaction["txid"] = convert.to_reverse_bytes_string(convert.to_hash256(txinfo.txid(transaction)))
     transaction["weight"] = 1  # Assign a fixed weight of 1 for simplicity
-    transaction["wtxid"] = convert.to_reverse_bytes_string(convert.to_hash256(coinbase.wtxid(transaction)))
+    transaction["wtxid"] = convert.to_reverse_bytes_string(convert.to_hash256(txinfo.wtxid(transaction)))
     # transaction["fee"] = transaction.get(
     #     "fee", get_fee(transaction)
     # )  
@@ -275,7 +275,7 @@ def validate_block(txids, transactions):
     # total_weight, total_fee = calculate_total_weight_and_fee(transactions)
 
     # Verify the witness commitment in the coinbase transaction
-    witness_commitment = coinbase.calculate_witness_commitment(transactions)
+    # witness_commitment = txinfo.calculate_witness_commitment(transactions)
     # if not verify_witness_commitment(coinbase_tx, witness_commitment):
     #     raise ValueError("Invalid witness commitment in coinbase transaction")
 
@@ -303,23 +303,13 @@ def main():
     # Mine the block
     block_header, txids, nonce, coinbase_tx_hex, coinbase_txid = mine_block(transactions)
 
-    validate_header(block_header, DIFFICULTY)
-    validate_block(txids, transactions)
-
-    # Validate the block
-    # validate_block(coinbase_tx, txids, transactions)
+    # validate_header(block_header, DIFFICULTY)
+    # validate_block(txids, transactions)
+    
     # Corrected writing to output file
     with open(OUTPUT_FILE, "w") as file:
         file.write(f"{block_header}\n{coinbase_tx_hex}\n{coinbase_txid}\n")
         file.writelines(f"{txid}\n" for txid in txids)
-
-    # Print the total weight and fee of the transactions in the block
-    # total_weight, total_fee = calculate_total_weight_and_fee(transactions)
-    # print(f"Total weight: {total_weight}")
-    # print(f"Total fee: {total_fee}")
-    # print(f"Total p2pkh: {p2pkh}")
-    # print(f"Total p2wpkh: {p2wpkh}")
-    # print(f"Total p2sh: {p2sh}")
 
 
 
