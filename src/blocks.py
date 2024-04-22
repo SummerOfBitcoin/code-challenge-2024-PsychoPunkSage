@@ -177,7 +177,7 @@ def read_transactions():
             with open(os.path.join(mempool_dir, filename), "r") as file:
                 # locktime ka locha #
                 txn_ids.append(filename[:-5])
-        return txn_ids[:2000]
+        return txn_ids[:500]
     except Exception as e:
         print("Error:", e)
         return None
