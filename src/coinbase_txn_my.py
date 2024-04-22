@@ -72,7 +72,7 @@ def txid(txn_id):
 
             # Locktime
             txn_hash += f"{to_little_endian(data['locktime'], 4)}"
-    return txn_hash
+    return to_reverse_bytes_string(to_hash256(txn_hash))
 
 def wtxid(txn_id):
     txn_hash = ""
