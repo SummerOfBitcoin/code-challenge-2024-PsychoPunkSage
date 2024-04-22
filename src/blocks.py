@@ -74,9 +74,9 @@ def mine_block(transaction_files):
 
     # Create a coinbase transaction with no inputs and two outputs: one for the block reward and one for the witness commitment
     witness_commitment = coinbase.calculate_witness_commitment(transaction_files)
-    # print("witneness commitment:", witness_commitment)
+    print("witneness commitment:", witness_commitment)
 
-    coinbase_hex, coinbase_txid = coinbase.coinbase_txn_id(witness_commitment=witness_commitment)
+    coinbase_hex, coinbase_txid = coinbase.serialize_coinbase_transaction(witness_commitment=witness_commitment)
 
     # Calculate the Merkle root of the transactions
     merkle_root = merkle.generate_merkle_root([coinbase_txid]+txids)
@@ -212,19 +212,6 @@ def pre_process_transaction(transaction):
     transaction["txid"] = convert.to_reverse_bytes_string(convert.to_hash256(txinfo.txid(transaction)))
     transaction["weight"] = 1  # Assign a fixed weight of 1 for simplicity
     transaction["wtxid"] = convert.to_reverse_bytes_string(convert.to_hash256(txinfo.wtxid(transaction)))
-    # transaction["fee"] = transaction.get(
-    #     "fee", get_fee(transaction)
-    # )  
-    # Assign a default fee if not present
-    # for each in transaction["vin"]:
-    #     prev = each["prevout"]
-    #     s_type = prev["scriptpubkey_type"]
-    #     if s_type == "p2pkh":
-    #         p2pkh += 1
-    #     if s_type == "v0_p2wpkh":
-    #         p2wpkh += 1
-    #     if s_type == "p2sh":
-    #         p2sh += 1
     return transaction
 
 def read_transaction_file(filename):
@@ -303,9 +290,9 @@ def main():
     # Mine the block
     block_header, txids, nonce, coinbase_tx_hex, coinbase_txid = mine_block(transactions)
 
-    # validate_header(block_header, DIFFICULTY)
-    # validate_block(txids, transactions)
-    
+    validate_header(block_header, DIFFICULTY)
+    validate_block(txids, transactions)
+
     # Corrected writing to output file
     with open(OUTPUT_FILE, "w") as file:
         file.write(f"{block_header}\n{coinbase_tx_hex}\n{coinbase_txid}\n")
