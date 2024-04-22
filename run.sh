@@ -1,2 +1,2 @@
-pip install coincurve
+# pip install coincurve
 python src/blocks.py

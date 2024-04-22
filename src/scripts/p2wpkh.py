@@ -2,15 +2,15 @@ import os
 import json
 import p2pkh
 import hashlib
-import coincurve
+# import coincurve
 
 import p2pkh
 
-def validate_signature(signature, message, publicKey):
-    b_sig = bytes.fromhex(signature)
-    b_msg = bytes.fromhex(message)
-    b_pub = bytes.fromhex(publicKey)
-    return coincurve.verify_signature(b_sig, b_msg, b_pub)
+# def validate_signature(signature, message, publicKey):
+#     b_sig = bytes.fromhex(signature)
+#     b_msg = bytes.fromhex(message)
+#     b_pub = bytes.fromhex(publicKey)
+#     return coincurve.verify_signature(b_sig, b_msg, b_pub)
 
 def _to_compact_size(value):
     if value < 0xfd:
