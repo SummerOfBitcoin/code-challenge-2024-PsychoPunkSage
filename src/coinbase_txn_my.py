@@ -120,11 +120,11 @@ def wtxid(txn_id):
 # txid = to_reverse_bytes_string(to_hash256(create_raw_txn_data_full("e4020c97eb2eb68055362d577e7068a128ceb887a33260062bb3ba2820b9bd30")))
 # print(f"txid::> {txid}")
 # filename = "e4020c97eb2eb68055362d577e7068a128ceb887a33260062bb3ba2820b9bd30"
-filename = "c1b27a173feead93944952612148c8972e5837d4d564dda8b96639561402ad2e"
+# filename = "c1b27a173feead93944952612148c8972e5837d4d564dda8b96639561402ad2e"
 # filename = "0a8b21af1cfcc26774df1f513a72cd362a14f5a598ec39d915323078efb5a240"
-print(f"txn_hash = {wtxid(filename)}\n")
-tx_id = (to_hash256(wtxid(filename)))
-print(f"txid::> {to_reverse_bytes_string(tx_id)}")
+# print(f"txn_hash = {wtxid(filename)}\n")
+# tx_id = (to_hash256(wtxid(filename)))
+# print(f"txid::> {to_reverse_bytes_string(tx_id)}")
 '''
 NON_SEGWIT
 txid = to_hash256(create_raw_txn_data_full("0a8b21af1cfcc26774df1f513a72cd362a14f5a598ec39d915323078efb5a240"))
@@ -254,7 +254,7 @@ def _make_coinbase_raw_data_segwit(witness_commitment): # txn_files ::> (List) o
 
     script_public_key2 = f"6a24aa21a9ed{witness_commitment}"
     # SCRIPT_PUBLIC_SIZE 2 #
-    print(f"SCRIPT_PUBLIC_SIZE2 (witness:: OUTPUT2) {to_compact_size(len(script_public_key2)//2)}") # 26
+    # print(f"SCRIPT_PUBLIC_SIZE2 (witness:: OUTPUT2) {to_compact_size(len(script_public_key2)//2)}") # 26
     raw_data += f"{to_compact_size(len(script_public_key2)//2)}"
 
     # SCRIPT_PUBLIC_KEY 2 #

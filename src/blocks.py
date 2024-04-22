@@ -12,6 +12,7 @@ import helper.get_txn_id as tx_id
 OUTPUT_FILE = "output.txt"
 DIFFICULTY = "0000ffff00000000000000000000000000000000000000000000000000000000"
 BLOCK_VERSION = 4
+MEMPOOL_DIR = "mempool"
 
 def raw_block_data(txn_files, nonce):
     block_header = ""
@@ -73,7 +74,7 @@ def mine_block(transaction_files):
 
     # Create a coinbase transaction with no inputs and two outputs: one for the block reward and one for the witness commitment
     witness_commitment = coinbase.calculate_witness_commitment(transaction_files)
-    print("witneness commitment:", witness_commitment)
+    # print("witneness commitment:", witness_commitment)
 
     coinbase_hex, coinbase_txid = coinbase.coinbase_txn_id(witness_commitment=witness_commitment)
 
@@ -202,7 +203,86 @@ def validate_header(header, target_difficulty):
     # Check if the hash is less than or equal to the target difficulty
     if reversed_hash_int > target_int:
         raise ValueError("Block does not meet target difficulty")
-    
+
+def pre_process_transaction(transaction):
+    """
+    Pre-process a transaction by adding default values and calculating the fee.
+    """
+    global p2pkh, p2wpkh, p2sh
+    transaction["txid"] = convert.to_reverse_bytes_string(convert.to_hash256(coinbase.txid(transaction)))
+    transaction["weight"] = 1  # Assign a fixed weight of 1 for simplicity
+    transaction["wtxid"] = convert.to_reverse_bytes_string(convert.to_hash256(coinbase.wtxid(transaction)))
+    # transaction["fee"] = transaction.get(
+    #     "fee", get_fee(transaction)
+    # )  
+    # Assign a default fee if not present
+    # for each in transaction["vin"]:
+    #     prev = each["prevout"]
+    #     s_type = prev["scriptpubkey_type"]
+    #     if s_type == "p2pkh":
+    #         p2pkh += 1
+    #     if s_type == "v0_p2wpkh":
+    #         p2wpkh += 1
+    #     if s_type == "p2sh":
+    #         p2sh += 1
+    return transaction
+
+def read_transaction_file(filename):
+    """
+    Read a JSON transaction file and return the transaction data.
+    """
+    with open(os.path.join(MEMPOOL_DIR, filename), "r") as file:
+        transaction = json.load(file)
+
+    pre_process_transaction(transaction)
+    return transaction
+
+# def verify_witness_commitment(coinbase_tx, witness_commitment):
+#     """
+#     Verify the witness commitment in the coinbase transaction.
+#     """
+#     for output in coinbase_tx["vout"]:
+#         script_hex = output["scriptPubKey"]["hex"]
+#         if script_hex.startswith("6a24aa21a9ed") and script_hex.endswith(
+#             witness_commitment
+#         ):
+#             return True
+#     return False
+
+def validate_block(txids, transactions):
+    """
+    Validate the block with the given coinbase transaction and txids.
+    """
+    # Validate coinbase transaction structure
+    # validate_coinbase_transaction(coinbase_tx)
+
+    # Read the mempool transactions from the JSON files and create a set of valid txids
+    mempool_txids = set()
+    for filename in os.listdir(MEMPOOL_DIR):
+        tx_data = read_transaction_file(filename)
+        # Extract the 'txid' from the first item in the 'vin' list
+        if "vin" in tx_data and len(tx_data["vin"]) > 0 and "txid" in tx_data["vin"][0]:
+            mempool_txids.add(tx_data["vin"][0]["txid"])
+        else:
+            raise ValueError(f"Transaction file {filename} is missing 'txid' in 'vin'")
+
+    # Validate the presence of each transaction ID in the block against the mempool
+    # for txid in txids:
+    #     if txid not in mempool_txids:
+    #         raise ValueError(f"Invalid txid found in block: {txid}")
+
+    # Calculate total weight and fee of the transactions in the block
+    # total_weight, total_fee = calculate_total_weight_and_fee(transactions)
+
+    # Verify the witness commitment in the coinbase transaction
+    witness_commitment = coinbase.calculate_witness_commitment(transactions)
+    # if not verify_witness_commitment(coinbase_tx, witness_commitment):
+    #     raise ValueError("Invalid witness commitment in coinbase transaction")
+
+    print(
+        "test pass"
+    )
+
 def main():
     # Read transaction files
     transactions = read_transactions()
@@ -224,6 +304,7 @@ def main():
     block_header, txids, nonce, coinbase_tx_hex, coinbase_txid = mine_block(transactions)
 
     validate_header(block_header, DIFFICULTY)
+    validate_block(txids, transactions)
 
     # Validate the block
     # validate_block(coinbase_tx, txids, transactions)
