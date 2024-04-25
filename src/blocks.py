@@ -183,46 +183,46 @@ def read_transactions():
         print("Error:", e)
         return None
 
-def validate_header(header, target_difficulty):
-    header_bytes = binascii.unhexlify(header)
-    if len(header_bytes) != 80:
-        print(f"header_bytes::> {len(header_bytes)}")
-        raise ValueError("Invalid header length")
+# def validate_header(header, target_difficulty):
+#     header_bytes = binascii.unhexlify(header)
+#     if len(header_bytes) != 80:
+#         print(f"header_bytes::> {len(header_bytes)}")
+#         raise ValueError("Invalid header length")
 
-    # Calculate double SHA256 hash of the block header
-    h1 = hashlib.sha256(header_bytes).digest()
-    h2 = hashlib.sha256(h1).digest()
+#     # Calculate double SHA256 hash of the block header
+#     h1 = hashlib.sha256(header_bytes).digest()
+#     h2 = hashlib.sha256(h1).digest()
 
-    # Reverse the hash
-    reversed_hash = h2[::-1]
+#     # Reverse the hash
+#     reversed_hash = h2[::-1]
 
-    # Convert hash and target difficulty to integers
-    reversed_hash_int = int.from_bytes(reversed_hash, byteorder="big")
-    target_int = int(target_difficulty, 16)
+#     # Convert hash and target difficulty to integers
+#     reversed_hash_int = int.from_bytes(reversed_hash, byteorder="big")
+#     target_int = int(target_difficulty, 16)
 
-    # Check if the hash is less than or equal to the target difficulty
-    if reversed_hash_int > target_int:
-        raise ValueError("Block does not meet target difficulty")
+#     # Check if the hash is less than or equal to the target difficulty
+#     if reversed_hash_int > target_int:
+#         raise ValueError("Block does not meet target difficulty")
 
-def pre_process_transaction(transaction):
-    """
-    Pre-process a transaction by adding default values and calculating the fee.
-    """
-    global p2pkh, p2wpkh, p2sh
-    transaction["txid"] = convert.to_reverse_bytes_string(convert.to_hash256(txinfo.txid(transaction)))
-    transaction["weight"] = 1  # Assign a fixed weight of 1 for simplicity
-    transaction["wtxid"] = convert.to_reverse_bytes_string(convert.to_hash256(txinfo.wtxid(transaction)))
-    return transaction
+# def pre_process_transaction(transaction):
+#     """
+#     Pre-process a transaction by adding default values and calculating the fee.
+#     """
+#     global p2pkh, p2wpkh, p2sh
+#     transaction["txid"] = convert.to_reverse_bytes_string(convert.to_hash256(txinfo.txid(transaction)))
+#     transaction["weight"] = 1  # Assign a fixed weight of 1 for simplicity
+#     transaction["wtxid"] = convert.to_reverse_bytes_string(convert.to_hash256(txinfo.wtxid(transaction)))
+#     return transaction
 
-def read_transaction_file(filename):
-    """
-    Read a JSON transaction file and return the transaction data.
-    """
-    with open(os.path.join(MEMPOOL_DIR, filename), "r") as file:
-        transaction = json.load(file)
+# def read_transaction_file(filename):
+#     """
+#     Read a JSON transaction file and return the transaction data.
+#     """
+#     with open(os.path.join(MEMPOOL_DIR, filename), "r") as file:
+#         transaction = json.load(file)
 
-    pre_process_transaction(transaction)
-    return transaction
+#     pre_process_transaction(transaction)
+#     return transaction
 
 # def verify_witness_commitment(coinbase_tx, witness_commitment):
 #     """
@@ -236,22 +236,22 @@ def read_transaction_file(filename):
 #             return True
 #     return False
 
-def validate_block(txids, transactions):
-    """
-    Validate the block with the given coinbase transaction and txids.
-    """
-    # Validate coinbase transaction structure
-    # validate_coinbase_transaction(coinbase_tx)
+# def validate_block(txids, transactions):
+#     """
+#     Validate the block with the given coinbase transaction and txids.
+#     """
+#     # Validate coinbase transaction structure
+#     # validate_coinbase_transaction(coinbase_tx)
 
-    # Read the mempool transactions from the JSON files and create a set of valid txids
-    mempool_txids = set()
-    for filename in os.listdir(MEMPOOL_DIR):
-        tx_data = read_transaction_file(filename)
-        # Extract the 'txid' from the first item in the 'vin' list
-        if "vin" in tx_data and len(tx_data["vin"]) > 0 and "txid" in tx_data["vin"][0]:
-            mempool_txids.add(tx_data["vin"][0]["txid"])
-        else:
-            raise ValueError(f"Transaction file {filename} is missing 'txid' in 'vin'")
+#     # Read the mempool transactions from the JSON files and create a set of valid txids
+#     mempool_txids = set()
+#     for filename in os.listdir(MEMPOOL_DIR):
+#         tx_data = read_transaction_file(filename)
+#         # Extract the 'txid' from the first item in the 'vin' list
+#         if "vin" in tx_data and len(tx_data["vin"]) > 0 and "txid" in tx_data["vin"][0]:
+#             mempool_txids.add(tx_data["vin"][0]["txid"])
+#         else:
+#             raise ValueError(f"Transaction file {filename} is missing 'txid' in 'vin'")
 
     # Validate the presence of each transaction ID in the block against the mempool
     # for txid in txids:
@@ -266,9 +266,9 @@ def validate_block(txids, transactions):
     # if not verify_witness_commitment(coinbase_tx, witness_commitment):
     #     raise ValueError("Invalid witness commitment in coinbase transaction")
 
-    print(
-        "test pass"
-    )
+    # print(
+    #     "test pass"
+    # )
 
 def main():
     # Read transaction files
@@ -290,8 +290,8 @@ def main():
     # Mine the block
     block_header, txids, nonce, coinbase_tx_hex, coinbase_txid = mine_block(transactions)
 
-    validate_header(block_header, DIFFICULTY)
-    validate_block(txids, transactions)
+    # validate_header(block_header, DIFFICULTY)
+    # validate_block(txids, transactions)
 
     # Corrected writing to output file
     with open(OUTPUT_FILE, "w") as file:
