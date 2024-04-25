@@ -26,9 +26,9 @@ def calculate_witness_commitment(txn_files):
     """
     wtxids = [WTXID_COINBASE]
     for tx in txn_files:
-        w_txid = convert.to_reverse_bytes_string(txinfo.wtxid(tx))
+        w_txid = txinfo.wtxid(tx)
         wtxids.append(w_txid)
-    print(f"WTXIDS::> {wtxids}")
+    # print(f"WTXIDS::> {wtxids}")
     witness_root = merkle.generate_merkle_root(wtxids)
     print(f"witness root::> {witness_root}")
 

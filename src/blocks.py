@@ -71,7 +71,7 @@ def mine_block(transaction_files):
     """
     nonce = 0
     txids = [txinfo.txid(tx) for tx in transaction_files]
-    print(f"txids::> {txids}")
+    # print(f"txids::> {txids}")
 
     # Create a coinbase transaction with no inputs and two outputs: one for the block reward and one for the witness commitment
     witness_commitment = coinbase.calculate_witness_commitment(transaction_files)
@@ -143,11 +143,14 @@ def read_transactions():
             with open(os.path.join(mempool_dir, filename), "r") as file:
                 # locktime ka locha #
                 txn_files.append(filename[:-5])
-        print(txn_files[:5])
-        return txn_files[:5]
+        # print(txn_files[:])
+        # return txn_files[:5]
+        return ["7cd041411276a4b9d0ea004e6dd149f42cb09bd02ca5dda6851b3df068749b2d", "c990d29bd10828ba40991b687362f532df79903424647dd1f9a5e2ace3edabca", "119604185a31e515e86ba0aec70559e7169600eab5adf943039b0a8b794b40df", "c3576a146165bdd8ecbfc79f18c54c8c51abd46bc0d093b01e640b6692372a93", "9fbc187e552b9e93406df86a4ebac8b67ccc0c4c321d0297edd8ffb87d4f5a45"]
     except Exception as e:
         print("Error:", e)
         return None
+
+# ["7cd041411276a4b9d0ea004e6dd149f42cb09bd02ca5dda6851b3df068749b2d", "2b1c455ca2329487041f5bdfeae4920a970efab2932a6aed04981c2a7cd25fd5", "119604185a31e515e86ba0aec70559e7169600eab5adf943039b0a8b794b40df", "c3576a146165bdd8ecbfc79f18c54c8c51abd46bc0d093b01e640b6692372a93", "9fbc187e552b9e93406df86a4ebac8b67ccc0c4c321d0297edd8ffb87d4f5a45"]
 
 # def validate_header(header, target_difficulty):
 #     header_bytes = binascii.unhexlify(header)
