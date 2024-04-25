@@ -71,6 +71,7 @@ def mine_block(transaction_files):
     """
     nonce = 0
     txids = [txinfo.txid(tx) for tx in transaction_files]
+    print(f"txids::> {txids}")
 
     # Create a coinbase transaction with no inputs and two outputs: one for the block reward and one for the witness commitment
     witness_commitment = coinbase.calculate_witness_commitment(transaction_files)
@@ -120,42 +121,6 @@ def mine_block(transaction_files):
 
     return block_header_hex, txids, nonce, coinbase_hex, coinbase_txid
 
-
-# def mine(txn_ids):
-#     nonce = 0
-#     while convert.to_hash256(raw_block_data(txn_ids, nonce)) > DIFFICULTY: # Block_hash > Difficulty
-#         nonce += 1
-#     return raw_block_data(txn_ids, nonce)
-
-# def _get_coinbase_raw_data(txn_ids):
-#     reward = 0
-#     block_subsidy = 5000000000
-#     for txnId in txn_ids:
-#         reward += validate_txn.fees(txnId)
-    
-#     version = "01000000"
-#     in_count = "01"
-#     in_txnId = "0000000000000000000000000000000000000000000000000000000000000000"
-#     vout = "ffffffff"
-#     scriptsig = "4d6164652062792050737963686f50756e6b53616765" # RANDOM
-#     scriptsig_size = f"{convert.to_compact_size(len(scriptsig)//2)}"
-#     sequence = "ffffffff"
-    
-#     out_count = "01"
-#     out_amt = f"{validate_txn.to_little_endian(reward + block_subsidy, 8)}"
-#     script_public_key_size = "19"
-#     script_public_key = "76a9142c30a6aaac6d96687291475d7d52f4b469f665a688ac"
-#     locktime = "00000000"
-
-#     return version+in_count+in_txnId+vout+scriptsig_size+scriptsig+sequence+out_count+out_amt+script_public_key_size+script_public_key+locktime
-
-# def coinbase_txn_id(txn_ids):
-#     raw_data = _get_coinbase_raw_data(txn_ids)
-#     coinbase_hash = convert.to_hash256(raw_data)
-#     reversed_bytes = convert.to_reverse_bytes_string(coinbase_hash)
-#     txnId = convert.to_sha256(reversed_bytes)
-#     return txnId
-
 '''
 Critical comments::>
 
@@ -171,14 +136,15 @@ if (coinbaseTx.outs.length !== 2) {
 '''
 
 def read_transactions():
-    txn_ids = []
+    txn_files = []
     mempool_dir = "mempool"
     try:
         for filename in os.listdir(mempool_dir):
             with open(os.path.join(mempool_dir, filename), "r") as file:
                 # locktime ka locha #
-                txn_ids.append(filename[:-5])
-        return txn_ids[:5]
+                txn_files.append(filename[:-5])
+        print(txn_files[:5])
+        return txn_files[:5]
     except Exception as e:
         print("Error:", e)
         return None
