@@ -1,10 +1,8 @@
-import binascii
 import os
-import json
 import time
 import hashlib
 import validate_txn
-import coinbase_txn_my as coinbase
+import coinbase_data as coinbase
 import helper.converter as convert
 import helper.merkle_root as merkle 
 import helper.txn_info as txinfo
@@ -14,6 +12,7 @@ MEMPOOL_DIR = "mempool"
 OUTPUT_FILE = "output.txt"
 DIFFICULTY = "0000ffff00000000000000000000000000000000000000000000000000000000"
 PREV_BLOCK_HASH = "0000000000000000000000000000000000000000000000000000000000000000"
+
 
 def _block_header_wo_nonce(merkle_root):
     block_version_bytes = bytes.fromhex(convert.to_little_endian(BLOCK_VERSION, 4))
@@ -34,7 +33,9 @@ def mine_block(transaction_files):
     witness_commitment = coinbase.calculate_witness_commitment(transaction_files)
     print("witneness commitment:", witness_commitment)
 
-    coinbase_hex, coinbase_txid = coinbase.create_coinbase_transaction(witness_commitment=witness_commitment)
+    fees = sum([validate_txn.fees(tx) for tx in transaction_files])
+    print(f"fees::> {fees}")
+    coinbase_hex, coinbase_txid = coinbase.create_coinbase_transaction(witness_commitment=witness_commitment, fees= fees)
 
     # Merkle root calculation of [coinbase + other] transaction
     merkle_root = merkle.merkle_root_calculator([coinbase_txid]+txids)
