@@ -38,138 +38,60 @@ def calculate_witness_commitment(txn_files):
     witness_commitment = convert.to_hash256(combined_data)
     return witness_commitment
 
-# def create_coinbase_transaction(witness_commitment, fees = 0):
-#     # f595814a00000000 -> fees
-#     fees_le = convert.to_little_endian(fees, 8)
-#     tx_dict = {
-#         "version": "01000000",
-#         "marker": "00",
-#         "flag": "01",
-#         "inputcount": "01",
-#         "inputs": [
-#             {
-#                 "txid": "0000000000000000000000000000000000000000000000000000000000000000",
-#                 "vout": "ffffffff",
-#                 "scriptsigsize": "25",
-#                 "scriptsig": "03233708184d696e656420627920416e74506f6f6c373946205b8160a4256c0000946e0100",
-#                 "sequence": "ffffffff",
-#             }
-#         ],
-#         "outputcount": "02",
-#         "outputs": [
-#             {
-#                 "amount": f"{fees_le}",
-#                 "scriptpubkeysize": "19",
-#                 "scriptpubkey": "76a914edf10a7fac6b32e24daa5305c723f3de58db1bc888ac",
-#             },
-#             {
-#                 "amount": "0000000000000000",
-#                 "scriptpubkeysize": "26",
-#                 "scriptpubkey": f"6a24aa21a9ed{witness_commitment}",
-#             },
-#         ],
-#         "witness": [
-#             {
-#                 "stackitems": "01",
-#                 "0": {
-#                     "size": "20",
-#                     "item": "0000000000000000000000000000000000000000000000000000000000000000",
-#                 },
-#             }
-#         ],
-#         "locktime": "00000000",
-#     }
+def create_coinbase_transaction(witness_commitment, fees = 0):
+    # f595814a00000000 -> fees
+    fees_le = convert.to_little_endian(fees, 8)
+    tx_template = {
+        "version": "01000000",
+        "marker": "00",
+        "flag": "01",
+        "inputcount": "01",
+        "inputs": [
+            {
+                "txid": "0000000000000000000000000000000000000000000000000000000000000000",
+                "vout": "ffffffff",
+                "scriptsigsize": "25",
+                "scriptsig": "03233708184d696e656420627920416e74506f6f6c373946205b8160a4256c0000946e0100",
+                "sequence": "ffffffff",
+            }
+        ],
+        "outputcount": "02",
+        "outputs": [
+            {
+                "amount": f"{fees_le}",
+                "scriptpubkeysize": "19",
+                "scriptpubkey": "76a914edf10a7fac6b32e24daa5305c723f3de58db1bc888ac",
+            },
+            {
+                "amount": "0000000000000000",
+                "scriptpubkeysize": "26",
+                "scriptpubkey": f"6a24aa21a9ed{witness_commitment}",
+            },
+        ],
+        "witness": [
+            {
+                "stackitems": "01",
+                "0": {
+                    "size": "20",
+                    "item": "0000000000000000000000000000000000000000000000000000000000000000",
+                },
+            }
+        ],
+        "locktime": "00000000",
+    }
 
-#     tx_dict_modified = {
-#         "version": 1,
-#         "marker": "00",
-#         "flag": "01",
-#         "inputcount": "01",
-#         "vin": [
-#             {
-#                 "txid": "0000000000000000000000000000000000000000000000000000000000000000",
-#                 "vout": int("ffffffff", 16),
-#                 "scriptsigsize": 37,
-#                 "scriptsig": "03233708184d696e656420627920416e74506f6f6c373946205b8160a4256c0000946e0100",
-#                 "sequence": int("ffffffff", 16),
-#             }
-#         ],
-#         "outputcount": "02",
-#         "vout": [
-#             {
-#                 "value": 2753059167,
-#                 "scriptpubkeysize": "19",
-#                 "scriptpubkey": "76a914edf10a7fac6b32e24daa5305c723f3de58db1bc888ac",
-#             },
-#             {
-#                 "value": 0,
-#                 "scriptpubkeysize": "26",
-#                 "scriptpubkey": f"6a24aa21a9ed{witness_commitment}",
-#             },
-#         ],
-#         "witness": [
-#             {
-#                 "stackitems": "01",
-#                 "0": {
-#                     "size": "20",
-#                     "item": "0000000000000000000000000000000000000000000000000000000000000000",
-#                 },
-#             }
-#         ],
-#         "locktime": 0,
-#     }
-#     # Version
-#     serialized_tx = tx_dict["version"]
-
-#     # Marker and Flag
-#     serialized_tx += tx_dict["marker"] + tx_dict["flag"]
-
-#     # Input Count
-#     serialized_tx += tx_dict["inputcount"]
-
-#     # Input
-#     input_data = tx_dict["inputs"][0]
-#     serialized_tx += input_data["txid"]
-#     serialized_tx += input_data["vout"]
-#     serialized_tx += input_data["scriptsigsize"].zfill(2)
-#     serialized_tx += input_data["scriptsig"]
-#     serialized_tx += input_data["sequence"]
-
-#     # Output Count
-#     serialized_tx += tx_dict["outputcount"]
-
-#     # Outputs
-#     for output in tx_dict["outputs"]:
-#         serialized_tx += output["amount"].zfill(16)
-#         serialized_tx += output["scriptpubkeysize"].zfill(2)
-#         serialized_tx += output["scriptpubkey"]
-
-#     # Witness
-#     witness_data = tx_dict["witness"][0]
-#     serialized_tx += witness_data["stackitems"]
-#     serialized_tx += witness_data["0"]["size"].zfill(2)
-#     serialized_tx += witness_data["0"]["item"]
-
-#     # Locktime
-#     serialized_tx += tx_dict["locktime"]
-
-#     # print(serialize_txn(tx_dict_modified))
-#     return serialized_tx, convert.to_reverse_bytes_string(convert.to_hash256(txinfo.txid_dict(tx_dict_modified)))
-
-def create_coinbase_transaction(witness_commitment, fees=0):
-    # Construct tx_dict_modified
-    tx_dict_modified = {
+    tx_template_modified = {
         "version": 1,
         "marker": "00",
         "flag": "01",
         "inputcount": "01",
         "vin": [
             {
-                "txid": "0" * 64,  # Assuming txid length is always 64 characters
-                "vout": -1,
+                "txid": "0000000000000000000000000000000000000000000000000000000000000000",
+                "vout": int("ffffffff", 16),
                 "scriptsigsize": 37,
                 "scriptsig": "03233708184d696e656420627920416e74506f6f6c373946205b8160a4256c0000946e0100",
-                "sequence": -1,
+                "sequence": int("ffffffff", 16),
             }
         ],
         "outputcount": "02",
@@ -190,22 +112,46 @@ def create_coinbase_transaction(witness_commitment, fees=0):
                 "stackitems": "01",
                 "0": {
                     "size": "20",
-                    "item": "0" * 40,  # Assuming item length is always 40 characters
+                    "item": "0000000000000000000000000000000000000000000000000000000000000000",
                 },
             }
         ],
         "locktime": 0,
     }
-    
-    # Serialize the transaction
-    serialized_tx = ""
-    for _, value in tx_dict_modified.items():
-        if isinstance(value, list):
-            for item in value:
-                if isinstance(item, dict):
-                    for _, inner_value in item.items():
-                        serialized_tx += inner_value.zfill(2) if isinstance(inner_value, str) and inner_value.isdigit() else inner_value
-        else:
-            serialized_tx += value.zfill(2) if isinstance(value, str) and value.isdigit() else value
+    # Version
+    tx_data = tx_template["version"]
 
-    return serialized_tx, convert.to_reverse_bytes_string(convert.to_hash256(txinfo.txid_dict(tx_dict_modified)))
+    # Marker and Flag
+    tx_data += tx_template["marker"] + tx_template["flag"]
+
+    # Input Count
+    tx_data += tx_template["inputcount"]
+
+    # Input
+    input_data = tx_template["inputs"][0]
+    tx_data += input_data["txid"]
+    tx_data += input_data["vout"]
+    tx_data += input_data["scriptsigsize"].zfill(2)
+    tx_data += input_data["scriptsig"]
+    tx_data += input_data["sequence"]
+
+    # Output Count
+    tx_data += tx_template["outputcount"]
+
+    # Outputs
+    for output in tx_template["outputs"]:
+        tx_data += output["amount"].zfill(16)
+        tx_data += output["scriptpubkeysize"].zfill(2)
+        tx_data += output["scriptpubkey"]
+
+    # Witness
+    witness_data = tx_template["witness"][0]
+    tx_data += witness_data["stackitems"]
+    tx_data += witness_data["0"]["size"].zfill(2)
+    tx_data += witness_data["0"]["item"]
+
+    # Locktime
+    tx_data += tx_template["locktime"]
+
+    # print(serialize_txn(tx_dict_modified))
+    return tx_data, convert.to_reverse_bytes_string(convert.to_hash256(txinfo.txid_dict(tx_template_modified)))
