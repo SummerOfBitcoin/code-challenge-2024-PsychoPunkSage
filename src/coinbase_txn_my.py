@@ -29,7 +29,7 @@ def calculate_witness_commitment(txn_files):
         w_txid = txinfo.wtxid(tx)
         wtxids.append(w_txid)
     # print(f"WTXIDS::> {wtxids}")
-    witness_root = merkle.generate_merkle_root(wtxids)
+    witness_root = merkle.merkle_root_calculator(wtxids)
     print(f"witness root::> {witness_root}")
 
     witness_reserved_value_hex = WITNESS_RESERVED_VALUE_HEX
@@ -144,7 +144,7 @@ def calculate_witness_commitment(txn_files):
 #     # txnId = convert.to_sha256(reversed_bytes)
 #     return raw_data, convert.to_reverse_bytes_string(coinbase_hash)
 
-def serialize_coinbase_transaction(witness_commitment):
+def create_coinbase_transaction(witness_commitment):
     tx_dict = {
         "version": "01000000",
         "marker": "00",
