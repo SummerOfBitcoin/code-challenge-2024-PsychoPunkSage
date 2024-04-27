@@ -1,5 +1,3 @@
-import json
-import os
 import helper.txn_info as txinfo
 import helper.converter as convert
 import helper.merkle_root as merkle
@@ -7,21 +5,15 @@ import helper.merkle_root as merkle
 WTXID_COINBASE = bytes(32).hex()
 WITNESS_RESERVED_VALUE_HEX = '0000000000000000000000000000000000000000000000000000000000000000'
 
-def fees(txnId):
-    file_path = os.path.join('mempool', f'{txnId}.json') # file path
-    if os.path.exists(file_path):
-        # Read the JSON data from the file
-        with open(file_path, 'r') as file:
-            txn_data = json.load(file)
-
-    amt_vin = sum([vin["prevout"]["value"] for vin in txn_data["vin"]])
-    amt_vout = sum([vout["value"] for vout in txn_data["vout"]])
-
-    return amt_vin - amt_vout
-
 def calculate_witness_commitment(txn_files):
     """
     Calculate the witness commitment of the transactions in the block.
+
+    @param txn_files: A list of transaction files to include in the calculation.
+    @type  txn_files: list
+
+    @return         : The witness commitment calculated for the given transactions.
+    @rtype          : str
     """
     wtxids = [WTXID_COINBASE]
     for tx in txn_files:
@@ -39,6 +31,15 @@ def calculate_witness_commitment(txn_files):
     return witness_commitment
 
 def create_coinbase_transaction(witness_commitment, fees = 0):
+    """
+    Creates a coinbase transaction with the given witness commitment and fees.
+
+    @param str witness_commitment: The witness commitment to include in the transaction.
+    @param int fees              : The transaction fees (default is 0).
+
+    @return                      : A tuple containing the serialized transaction data and the reversed bytes string of the transaction ID.
+    @rtype                       : tuple[str, str]
+    """
     # f595814a00000000 -> fees
     fees_le = convert.to_little_endian(fees, 8)
     tx_template = {
@@ -152,5 +153,5 @@ def create_coinbase_transaction(witness_commitment, fees = 0):
 
     # Locktime
     tx_data += tx_template["locktime"]
-    
+
     return tx_data, convert.to_reverse_bytes_string(convert.to_hash256(txinfo.txid_dict(tx_template_modified)))

@@ -135,7 +135,7 @@ def wtxid(txn_id):
             # Version
             txn_hash += f"{convert.to_little_endian(data['version'], 4)}"
             # Marker+flags (if any `vin` has empty scriptsig)
-            if any(i.get("scriptsig") == "" for i in data["vin"]):
+            if any((i.get("witness") and i.get("witness") != "") for i in data["vin"]):
                 txn_hash += "0001"
             # No. of inputs:
             txn_hash += f"{str(convert.to_compact_size(len(data['vin'])))}"

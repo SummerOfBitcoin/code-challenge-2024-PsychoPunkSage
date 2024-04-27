@@ -97,9 +97,3 @@ def validate_p2wpkh_txn(witness, wit_scriptpubkey_asm, txn_data):
 # txn_data = segwit_txn_data(filename)
 
 # print(f"p2wpkh::> {validate_p2wpkh_txn(wit, wit_asm, txn_data)}")
-
-'''
-CRITICAL COMMENTS::
-
-presence of <OP_PUSHNUM_3>
-'''
