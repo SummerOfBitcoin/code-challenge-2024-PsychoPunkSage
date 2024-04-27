@@ -3,11 +3,12 @@ import json
 import hashlib
 import scripts.p2pkh
 import helper.txn_info as txinfo
+import helper.converter as convert
 
 ################
 ## Txn Weight ##
 ################
-def _txn_weight(txnId):
+def txn_weight(txnId):
     tx_bytes = len(txinfo.create_raw_txn_data_full(txnId))//2
     tx_weight = 4*(len(txinfo.create_raw_txn_data_min(txnId))//2) + (tx_bytes - len(txinfo.create_raw_txn_data_min(txnId))//2)
     tx_virtual_weight = tx_weight/4
@@ -29,22 +30,6 @@ def fees(txnId):
 
     return amt_vin - amt_vout
 
-##############
-## Txn Data ##
-##############
-
-#################
-## TxnId Check ##
-#################
-def _get_txn_id(txn_id):
-    txn_data = txinfo.create_raw_txn_data_full(txn_id) # get raw txn_data
-    if txn_data[8:12] == "0001":
-        txn_data = txinfo.create_raw_txn_data_min(txn_id)
-    txn_hash = hashlib.sha256(hashlib.sha256(bytes.fromhex(txn_data)).digest()).digest().hex() # 2xSHA256
-    reversed_bytes = bytes.fromhex(txn_hash)[::-1].hex() # bytes reversal
-    txnId = hashlib.sha256(bytes.fromhex(reversed_bytes)).digest().hex() # last sha256
-    return txnId
-# print(f"txinfo::> {_get_txn_id('0a8b21af1cfcc26774df1f513a72cd362a14f5a598ec39d915323078efb5a240')}")
 #######################
 ## Segwit/Non-Segwit ##
 #######################
@@ -97,7 +82,7 @@ def validate(txnId):
     ########################
     ## TXN CONTENT CHECKS ##
     ########################
-    if txnId != _get_txn_id(txnId):
+    if txnId != convert.to_sha256(txinfo.txid(txnId)):
         return False
     
     ############################
@@ -118,15 +103,15 @@ def validate(txnId):
     #         raw_txn_data = scripts.p2pkh.legacy_txn_data(txnId)
     #         return scripts.p2pkh.validate_p2pkh_txn(signature, pubkey, scriptpubkey_asm, raw_txn_data)
 
-    # return True
+    return True
 
-# print("\nOUTPUT::>\n")
-# print(validate("0a3c3139b32f021a35ac9a7bef4d59d4abba9ee0160910ac94b4bcefb294f196"))
-# print(validate("ff0717b6f0d2b2518cfb85eed7ccea44c3a3822e2a0ce6e753feecf68df94a7f"))
-# print(validate("0a8b21af1cfcc26774df1f513a72cd362a14f5a598ec39d915323078efb5a240")) # - p2pkh only
-# print(validate("1ccd927e58ef5395ddef40eee347ded55d2e201034bc763bfb8a263d66b99e5e"))
-# print(validate("0a5d6ddc87a9246297c1038d873eec419f04301197d67b9854fa2679dbe3bd65"))
-# print(validate("0dd03993f8318d968b7b6fdf843682e9fd89258c186187688511243345c2009f")) # - p2sh only
+print("\nOUTPUT::>\n")
+print(validate("0a3c3139b32f021a35ac9a7bef4d59d4abba9ee0160910ac94b4bcefb294f196"))
+print(validate("ff0717b6f0d2b2518cfb85eed7ccea44c3a3822e2a0ce6e753feecf68df94a7f"))
+print(validate("0a8b21af1cfcc26774df1f513a72cd362a14f5a598ec39d915323078efb5a240")) # - p2pkh only
+print(validate("1ccd927e58ef5395ddef40eee347ded55d2e201034bc763bfb8a263d66b99e5e"))
+print(validate("0a5d6ddc87a9246297c1038d873eec419f04301197d67b9854fa2679dbe3bd65"))
+print(validate("0dd03993f8318d968b7b6fdf843682e9fd89258c186187688511243345c2009f")) # - p2sh only
 
 """
 >> 02000000 01 25c9f7c56ab4b9c358cb159175de542b41c7d38bf862a045fa5da51979e37ffb 01000000 1976a914286eb663201959fb12eff504329080e4c56ae28788acffffffff0254e80500000000001976a9141ef7874d338d24ecf6577e6eadeeee6cd579c67188acc8910000000000001976a9142e391b6c47778d35586b1f4154cbc6b06dc9840c88ac00000000

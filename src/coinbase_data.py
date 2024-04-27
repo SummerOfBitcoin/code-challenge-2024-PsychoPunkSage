@@ -152,6 +152,5 @@ def create_coinbase_transaction(witness_commitment, fees = 0):
 
     # Locktime
     tx_data += tx_template["locktime"]
-
-    # print(serialize_txn(tx_dict_modified))
+    
     return tx_data, convert.to_reverse_bytes_string(convert.to_hash256(txinfo.txid_dict(tx_template_modified)))
