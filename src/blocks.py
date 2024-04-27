@@ -34,7 +34,7 @@ def mine_block(transaction_files):
     print("witneness commitment:", witness_commitment)
 
     fees = sum([validate_txn.fees(tx) for tx in transaction_files])
-    print(f"fees::> {fees}")
+    # print(f"fees::> {fees}")
     coinbase_hex, coinbase_txid = coinbase.create_coinbase_transaction(witness_commitment=witness_commitment, fees= fees)
 
     # Merkle root calculation of [coinbase + other] transaction
