@@ -2,10 +2,7 @@ import os
 import json
 import hashlib
 import coincurve
-# import helper.converter as convert
-# from mempool import *
-# from src.helper import converter as convert
-# from ..helper import converter as convert
+from Crypto.Hash import RIPEMD160
 
 def validate_signature(signature, message, publicKey):
     b_sig = bytes.fromhex(signature)
@@ -81,8 +78,9 @@ def segwit_txn_data(txn_id):
 
 def to_hash160(hex_input):
     sha = hashlib.sha256(bytes.fromhex(hex_input)).hexdigest()
-    hash_160 = hashlib.new('ripemd160')
+    hash_160 = RIPEMD160.new()
     hash_160.update(bytes.fromhex(sha))
+    return hash_160.hexdigest()
 
 def _validate_p2wpkh_txn(signature, pubkey, scriptpubkey_asm, txn_data):
     stack = []

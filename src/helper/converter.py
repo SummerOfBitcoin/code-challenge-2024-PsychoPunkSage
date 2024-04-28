@@ -1,4 +1,5 @@
 import hashlib
+from Crypto.Hash import RIPEMD160
 
 def to_compact_size(value):
     if value < 0xfd:
@@ -15,9 +16,8 @@ def to_little_endian(num, size):
 
 def to_hash160(hex_input):
     sha = hashlib.sha256(bytes.fromhex(hex_input)).hexdigest()
-    hash_160 = hashlib.new('ripemd160')
+    hash_160 = RIPEMD160.new()
     hash_160.update(bytes.fromhex(sha))
-
     return hash_160.hexdigest()
 
 def to_hash256(hex_input):
@@ -33,4 +33,4 @@ def to_reverse_bytes_string(hex_input):
     return bytes.fromhex(hex_input)[::-1].hex()
 
 # hex_in = "0100000001b7994a0db2f373a29227e1d90da883c6ce1cb0dd2d6812e4558041ebbbcfa54b000000001976a9144299ff317fcd12ef19047df66d72454691797bfc88acffffffff01983a0000000000001976a914b3e2819b6262e0b1f19fc7229d75677f347c91ac88ac0000000001000000"
-# print(f"hash256::> {to_hash256(hex_in)}")
+# print(f"hash160::> {to_hash160(hex_in)}")

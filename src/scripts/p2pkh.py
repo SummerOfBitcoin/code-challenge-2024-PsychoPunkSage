@@ -2,6 +2,7 @@ import os
 import json
 import hashlib
 import coincurve
+from Crypto.Hash import RIPEMD160
 # import helper.converter as convert
 # from mempool import *
 # from src.helper import converter as convert
@@ -26,6 +27,11 @@ def _to_compact_size(value):
 def _little_endian(num, size):
     return num.to_bytes(size, byteorder='little').hex()
 
+def to_hash160(hex_input):
+    sha = hashlib.sha256(bytes.fromhex(hex_input)).hexdigest()
+    hash_160 = RIPEMD160.new()
+    hash_160.update(bytes.fromhex(sha))
+    return hash_160.hexdigest()
 
 def segwit_txn_data(txn_id):
     file_path = os.path.join("mempool", f"{txn_id}.json")
@@ -210,14 +216,11 @@ def validate_p2pkh_txn(signature, pubkey, scriptpubkey_asm, txn_data):
         if i == "OP_HASH160":
             # print("===========")
             # print("OP_HASH160")
-            # ripemd160_hash = convert.to_hash160(stack[-1])
-            sha = hashlib.sha256(bytes.fromhex(stack[-1])).hexdigest()
-            hash_160 = hashlib.new('ripemd160')
-            hash_160.update(bytes.fromhex(sha))
+            hash_160 = to_hash160(stack[-1])
 
             stack.pop(-1)
             # print(stack)
-            stack.append(hash_160.hexdigest())
+            stack.append(hash_160)
             # print(stack)
 
         if i == "OP_EQUALVERIFY":
@@ -255,22 +258,22 @@ def validate_p2pkh_txn(signature, pubkey, scriptpubkey_asm, txn_data):
 
 
 
-# filename = "0a8b21af1cfcc26774df1f513a72cd362a14f5a598ec39d915323078efb5a240"
-# file_path = os.path.join('mempool', f"{filename}.json") # file path
-# if os.path.exists(file_path):
-#     with open(file_path, 'r') as file: 
-#         txn_data = json.load(file)
-#         # print(f"txn_data: {txn_data}")
-# else:
-#     print(f"file not found: {file_path}")
-# signature = txn_data['vin'][0]["scriptsig_asm"].split(" ")[1]
-# pubkey = txn_data['vin'][0]["scriptsig_asm"].split(" ")[3]
-# scriptpubkey_asm = txn_data['vin'][0]["prevout"]["scriptpubkey_asm"].split(" ")
-# # raw_txn_data = legacy_txn_data(filename)
+filename = "0a8b21af1cfcc26774df1f513a72cd362a14f5a598ec39d915323078efb5a240"
+file_path = os.path.join('mempool', f"{filename}.json") # file path
+if os.path.exists(file_path):
+    with open(file_path, 'r') as file: 
+        txn_data = json.load(file)
+        # print(f"txn_data: {txn_data}")
+else:
+    print(f"file not found: {file_path}")
+signature = txn_data['vin'][0]["scriptsig_asm"].split(" ")[1]
+pubkey = txn_data['vin'][0]["scriptsig_asm"].split(" ")[3]
+scriptpubkey_asm = txn_data['vin'][0]["prevout"]["scriptpubkey_asm"].split(" ")
+raw_txn_data = legacy_txn_data(filename)
 # raw_txn_data = segwit_txn_data(filename)
-# print(raw_txn_data)
+print(raw_txn_data)
 
-# print(f"p2pkh::> {validate_p2pkh_txn(signature, pubkey, scriptpubkey_asm, raw_txn_data)}")
+print(f"p2pkh::> {validate_p2pkh_txn(signature, pubkey, scriptpubkey_asm, raw_txn_data)}")
 
 
 
