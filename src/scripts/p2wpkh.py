@@ -107,7 +107,7 @@ def _validate_p2wpkh_txn(signature, pubkey, scriptpubkey_asm, txn_data):
 
             stack.pop(-1)
             # print(stack)
-            stack.append(hash_160.hexdigest())
+            stack.append(hash_160)
             # print(stack)
 
         if i == "OP_EQUALVERIFY":
