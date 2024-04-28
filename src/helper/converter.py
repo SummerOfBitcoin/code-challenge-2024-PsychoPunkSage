@@ -14,7 +14,6 @@ def to_little_endian(num, size):
     return num.to_bytes(size, byteorder='little').hex()
 
 def to_hash160(hex_input):
-    # print(hex_input)
     sha = hashlib.sha256(bytes.fromhex(hex_input)).hexdigest()
     hash_160 = hashlib.new('ripemd160')
     hash_160.update(bytes.fromhex(sha))

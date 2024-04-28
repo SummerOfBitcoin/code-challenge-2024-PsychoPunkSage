@@ -79,6 +79,11 @@ def segwit_txn_data(txn_id):
             preimage = ver + hash256_in + hash256_seq + ser_tx_vout_sp + scriptcode + in_amt + sequence_txn + hash256_out + locktime
     return preimage
 
+def to_hash160(hex_input):
+    sha = hashlib.sha256(bytes.fromhex(hex_input)).hexdigest()
+    hash_160 = hashlib.new('ripemd160')
+    hash_160.update(bytes.fromhex(sha))
+
 def _validate_p2wpkh_txn(signature, pubkey, scriptpubkey_asm, txn_data):
     stack = []
 
@@ -97,10 +102,10 @@ def _validate_p2wpkh_txn(signature, pubkey, scriptpubkey_asm, txn_data):
         if i == "OP_HASH160":
             # print("===========")
             # print("OP_HASH160")
-            # ripemd160_hash = convert.to_hash160(stack[-1])
-            sha = hashlib.sha256(bytes.fromhex(stack[-1])).hexdigest()
-            hash_160 = hashlib.new('ripemd160')
-            hash_160.update(bytes.fromhex(sha))
+            # sha = hashlib.sha256(bytes.fromhex(stack[-1])).hexdigest()
+            # hash_160 = hashlib.new('ripemd160')
+            # hash_160.update(bytes.fromhex(sha))
+            hash_160 = to_hash160(stack[-1])
 
             stack.pop(-1)
             # print(stack)
