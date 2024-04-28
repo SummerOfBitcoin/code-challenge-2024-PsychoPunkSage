@@ -1,8 +1,6 @@
 import os
 import validate_txn
-# import helper.merkle_root as merkle 
-# import helper.converter as convert
-# import helper.get_txn_id as tx_id
+
 '''
 @title read transaction form mempool
 @notice parses each json object in `mempool` and append an internal list with all txn_ids
@@ -34,13 +32,4 @@ def list_valid_txn():
             valid_txn_files.append(txn_file_name)
     return valid_txn_files
 
-# print(len(list_valid_txn()))
-
-# lst = list_valid_txn()
-# a_lst = [tx_id.get_txn_id(i) for i in lst]
-# with open('output.txt', 'w') as f:
-#     for txn_id in a_lst:
-#         f.write(txn_id + '\n')
-
-# CalculatedMerkleRoot = str(merkle.merkleCalculator(a_lst), 'utf-8')
-# print('Calculated MerkleRoot : ' + CalculatedMerkleRoot)
+print(len(list_valid_txn()))

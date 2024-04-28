@@ -258,22 +258,22 @@ def validate_p2pkh_txn(signature, pubkey, scriptpubkey_asm, txn_data):
 
 
 
-filename = "0a8b21af1cfcc26774df1f513a72cd362a14f5a598ec39d915323078efb5a240"
-file_path = os.path.join('mempool', f"{filename}.json") # file path
-if os.path.exists(file_path):
-    with open(file_path, 'r') as file: 
-        txn_data = json.load(file)
-        # print(f"txn_data: {txn_data}")
-else:
-    print(f"file not found: {file_path}")
-signature = txn_data['vin'][0]["scriptsig_asm"].split(" ")[1]
-pubkey = txn_data['vin'][0]["scriptsig_asm"].split(" ")[3]
-scriptpubkey_asm = txn_data['vin'][0]["prevout"]["scriptpubkey_asm"].split(" ")
-raw_txn_data = legacy_txn_data(filename)
-# raw_txn_data = segwit_txn_data(filename)
-print(raw_txn_data)
+# filename = "0a8b21af1cfcc26774df1f513a72cd362a14f5a598ec39d915323078efb5a240"
+# file_path = os.path.join('mempool', f"{filename}.json") # file path
+# if os.path.exists(file_path):
+#     with open(file_path, 'r') as file: 
+#         txn_data = json.load(file)
+#         # print(f"txn_data: {txn_data}")
+# else:
+#     print(f"file not found: {file_path}")
+# signature = txn_data['vin'][0]["scriptsig_asm"].split(" ")[1]
+# pubkey = txn_data['vin'][0]["scriptsig_asm"].split(" ")[3]
+# scriptpubkey_asm = txn_data['vin'][0]["prevout"]["scriptpubkey_asm"].split(" ")
+# raw_txn_data = legacy_txn_data(filename)
+# # raw_txn_data = segwit_txn_data(filename)
+# print(raw_txn_data)
 
-print(f"p2pkh::> {validate_p2pkh_txn(signature, pubkey, scriptpubkey_asm, raw_txn_data)}")
+# print(f"p2pkh::> {validate_p2pkh_txn(signature, pubkey, scriptpubkey_asm, raw_txn_data)}")
 
 
 

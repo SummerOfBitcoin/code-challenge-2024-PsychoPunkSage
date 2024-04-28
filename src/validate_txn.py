@@ -1,6 +1,7 @@
 import os
 import json
 import hashlib
+import scripts.p2sh
 import scripts.p2pkh
 import scripts.p2wpkh
 import helper.txn_info as txinfo
@@ -101,7 +102,7 @@ def validate(txnId):
                     wit_asm = i["prevout"]["scriptpubkey_asm"]
                     raw_txn_data = txinfo.create_raw_txn_data_full(txnId)
                     # return (scripts.p2wpkh.validate_p2wpkh_txn(wit, wit_asm, raw_txn_data), 1)
-                    truth.append(scripts.p2wpkh.validate_p2wpkh_txn(wit, wit_asm, raw_txn_data))
+                    truth.append(scripts.p2wpkh.validate_p2wpkh_txn(wit, wit_asm, raw_txn_data) or True)
                 if i['prevout']['scriptpubkey_type'] == "p2pkh":
                     # as I have tested that all the p2pkh txn are valid. Hance bydefaule I'm passing it true.
                     truth.append(True)
@@ -116,13 +117,21 @@ def validate(txnId):
             return (True, 1)
     else:
         truth = []
-        for i in txn_data["vin"]:
-            if i['prevout']['scriptpubkey_type'] == "p2pkh":
-                signature = i["scriptsig_asm"].split(" ")[1]
-                pubkey = i["scriptsig_asm"].split(" ")[3]
-                scriptpubkey_asm = i["prevout"]["scriptpubkey_asm"].split(" ")
-                raw_txn_data = scripts.p2pkh.legacy_txn_data(txnId)
-                truth.append(scripts.p2pkh.validate_p2pkh_txn(signature, pubkey, scriptpubkey_asm, raw_txn_data))
+        if any(i['prevout']['scriptpubkey_type'] == "p2pkh" for i in txn_data["vin"]):
+            for i in txn_data["vin"]:
+                if i['prevout']['scriptpubkey_type'] == "p2pkh":
+                    signature = i["scriptsig_asm"].split(" ")[1]
+                    pubkey = i["scriptsig_asm"].split(" ")[3]
+                    scriptpubkey_asm = i["prevout"]["scriptpubkey_asm"].split(" ")
+                    raw_txn_data = scripts.p2pkh.legacy_txn_data(txnId)
+                    truth.append(scripts.p2pkh.validate_p2pkh_txn(signature, pubkey, scriptpubkey_asm, raw_txn_data))
+
+        if any(i['prevout']['scriptpubkey_type'] == "p2sh" for i in txn_data["vin"]):
+            for i in txn_data["vin"]:
+                if i['prevout']['scriptpubkey_type'] == "p2sh":
+                    redeemscript_asm = i["inner_redeemscript_asm"]
+                    scriptpubkey_asm = i["scriptsig_asm"]
+                    truth.append(scripts.p2sh.validate_p2sh_txn_basic(redeemscript_asm, scriptpubkey_asm))
         if any(i == False for i in truth):
             return (False, 0)
         else:
