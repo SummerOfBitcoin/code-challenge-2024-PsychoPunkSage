@@ -1,9 +1,17 @@
 import os
 import json
-import p2pkh
 import hashlib
+import coincurve
+# import helper.converter as convert
+# from mempool import *
+# from src.helper import converter as convert
+# from ..helper import converter as convert
 
-import p2pkh
+def validate_signature(signature, message, publicKey):
+    b_sig = bytes.fromhex(signature)
+    b_msg = bytes.fromhex(message)
+    b_pub = bytes.fromhex(publicKey)
+    return coincurve.verify_signature(b_sig, b_msg, b_pub)
 
 def _to_compact_size(value):
     if value < 0xfd:
@@ -69,28 +77,87 @@ def segwit_txn_data(txn_id):
 
             # preimage = version + hash256(inputs) + hash256(sequences) + input + scriptcode + amount + sequence + hash256(outputs) + locktime
             preimage = ver + hash256_in + hash256_seq + ser_tx_vout_sp + scriptcode + in_amt + sequence_txn + hash256_out + locktime
-            # print(f"preimage 11111 ::> {preimage}")
-    # return hashlib.sha256(bytes.fromhex(preimage)).digest().hex()
     return preimage
 
+def _validate_p2wpkh_txn(signature, pubkey, scriptpubkey_asm, txn_data):
+    stack = []
+
+    stack.append(signature)
+    stack.append(pubkey)
+
+    # print(stack)
+
+    for i in scriptpubkey_asm:
+        if i == "OP_DUP":
+            stack.append(stack[-1])
+            # print("===========")
+            # print("OP_DUP")
+            # print(stack)
+
+        if i == "OP_HASH160":
+            # print("===========")
+            # print("OP_HASH160")
+            # ripemd160_hash = convert.to_hash160(stack[-1])
+            sha = hashlib.sha256(bytes.fromhex(stack[-1])).hexdigest()
+            hash_160 = hashlib.new('ripemd160')
+            hash_160.update(bytes.fromhex(sha))
+
+            stack.pop(-1)
+            # print(stack)
+            stack.append(hash_160.hexdigest())
+            # print(stack)
+
+        if i == "OP_EQUALVERIFY":
+            # print("===========")
+            # print("OP_EQUALVERIFY")
+            if stack[-1] != stack[-2]:
+                return False
+            else:
+                stack.pop(-1)
+                # print(stack)
+                stack.pop(-1)
+                # print(stack)
+
+        if i == "OP_CHECKSIG":
+            # print("===========")
+            # print("OP_CHECKSIG")
+            if signature[-2:] == "01": # SIGHASH_ALL ONLY
+                der_sig = signature[:-2]
+                msg = txn_data + "01000000"
+                msg_hash = hashlib.sha256(bytes.fromhex(msg)).digest().hex()
+                # print(der_sig) 
+                # print(pubkey) 
+                # print("============VALIDAREA=================")
+                # print(msg)
+                # print(msg_hash)
+                return validate_signature(der_sig, msg_hash, pubkey)
+                # return True
+
+        if i == "OP_PUSHBYTES_20":
+            # print("===========")
+            # print("OP_PUSHBYTES_20")
+            stack.append(scriptpubkey_asm[scriptpubkey_asm.index("OP_PUSHBYTES_20") + 1])
+            # print(stack)
 
 def validate_p2wpkh_txn(witness, wit_scriptpubkey_asm, txn_data):
     wit_sig, wit_pubkey = witness[0], witness[1]
 
     pkh = wit_scriptpubkey_asm.split(" ")[-1]
-    print(wit_sig, wit_pubkey, pkh)
-    print("\n")
-    print(txn_data)
+    # print(wit_sig, wit_pubkey, pkh)
+    # print("\n")
+    # print(txn_data)
     scriptpubkey_asm = ["OP_DUP", "OP_HASH160", "OP_PUSHBYTES_20", pkh, "OP_EQUALVERIFY", "OP_CHECKSIG"]
 
-    return p2pkh.validate_p2pkh_txn(wit_sig, wit_pubkey,scriptpubkey_asm, txn_data)
+    return _validate_p2wpkh_txn(wit_sig, wit_pubkey,scriptpubkey_asm, txn_data)
 
-# filename = "1ccd927e58ef5395ddef40eee347ded55d2e201034bc763bfb8a263d66b99e5e"
 # filename = "0a3fd98f8b3d89d2080489d75029ebaed0c8c631d061c2e9e90957a40e99eb4c"
+# filename = "dcd45100f59948d0ba3031a55be2c131db24ab92daccb7a58696f3abccdcacca"
 # file_path = os.path.join('mempool', f"{filename}.json") # file path
 # if os.path.exists(file_path):
 #     with open(file_path, 'r') as file: 
 #         txn_data = json.load(file)
+# else:
+#     print(f"{filename}.json DOES NOT exist")
 
 # wit = txn_data["vin"][0]["witness"]
 # wit_asm = txn_data["vin"][0]["prevout"]["scriptpubkey_asm"]

@@ -2,6 +2,7 @@ import os
 import time
 import hashlib
 import validate_txn
+import list_valid_txn
 import coinbase_data as coinbase
 import helper.converter as convert
 import helper.merkle_root as merkle 
@@ -12,7 +13,8 @@ MEMPOOL_DIR = "mempool"
 OUTPUT_FILE = "output.txt"
 DIFFICULTY = "0000ffff00000000000000000000000000000000000000000000000000000000"
 PREV_BLOCK_HASH = "0000000000000000000000000000000000000000000000000000000000000000"
-
+NONCE_MIN = 0x0
+NONCE_MAX = 0xFFFFFFFF
 
 def _block_header_wo_nonce(merkle_root):
     """
@@ -69,34 +71,21 @@ def mine_block(transaction_files):
     # print("target:", target)
     while True:
         block_hash = hashlib.sha256(hashlib.sha256(block_header).digest()).digest()
-        reversed_hash = block_hash[::-1]
-        if int.from_bytes(reversed_hash, "big") <= target:
+        rev_hash = block_hash[::-1]
+        if int.from_bytes(rev_hash, "big") <= target:
             break
         nonce += 1
         nonce_bytes = bytes.fromhex(convert.to_little_endian(nonce, 4))
         block_header = block_header[:-4] + nonce_bytes  # Update the nonce (LAST 4 bytes) in the header....
         # Nonce Range Validation
-        if nonce < 0x0 or nonce > 0xFFFFFFFF:
+        if nonce < NONCE_MIN or nonce > NONCE_MAX:
             raise ValueError("Invalid nonce")
 
     print(f"nonce::> {nonce}")
-    block_header_hex = block_header.hex()
+    block_header_hex = block_header.hex() # Final Hash
 
     return block_header_hex, txids, nonce, coinbase_hex, coinbase_txid
 
-'''
-Critical comments::>
-
-* CONBASE
-if (coinbaseTx.outs.length !== 2) {
-    throw new Error(
-      'Coinbase transaction must have exactly 2 outputs. One for the block reward and one for the witness commitment',
-    )
-  }
-
-* MERKLE:
-  let level = txids.map((txid) => Buffer.from(txid, 'hex').reverse().toString('hex')) ### IMP LINE
-'''
 
 def read_transactions():
     txn_files = []
@@ -118,8 +107,9 @@ def read_transactions():
 
 def main():
     # Read transaction files
-    transactions = read_transactions()
-    # print(f"Total transactions: {len(transactions)}")
+    # transactions = read_transactions()
+    transactions = list_valid_txn.list_valid_txn()
+    print(f"Total transactions: {len(transactions)}")
 
     if not any(transactions):
         raise ValueError("No valid transactions to include in the block")

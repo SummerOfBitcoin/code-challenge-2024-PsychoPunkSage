@@ -22,16 +22,19 @@ def read_transactions():
         return None
 
 def list_valid_txn():
-    valid_txn_ids = []
+    valid_txn_files = []
     unchecked_txn_ids = read_transactions()
-    for txn_id in unchecked_txn_ids:
-        if validate_txn.validate(txn_id):
-            valid_txn_ids.append(txn_id)
+    for txn_file_name in unchecked_txn_ids:
+        valid, is_segwit = validate_txn.validate(txn_file_name)
+        if valid and is_segwit == 1:
+            # Adding SEGWIT txn at begining to give it priority over NON-SEGWIT tx
+            valid_txn_files.insert(0, txn_file_name)
+        if valid and is_segwit == 0:
+            # Adding NON-SEGWIT txn at last to give it less priority over SEGWIT tx
+            valid_txn_files.append(txn_file_name)
+    return valid_txn_files
 
-
-    return valid_txn_ids
-
-print(len(list_valid_txn()))
+# print(len(list_valid_txn()))
 
 # lst = list_valid_txn()
 # a_lst = [tx_id.get_txn_id(i) for i in lst]

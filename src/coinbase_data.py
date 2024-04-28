@@ -30,6 +30,20 @@ def calculate_witness_commitment(txn_files):
     witness_commitment = convert.to_hash256(combined_data)
     return witness_commitment
 
+'''
+Critical comments::>
+
+* CONBASE
+if (coinbaseTx.outs.length !== 2) {
+    throw new Error(
+      'Coinbase transaction must have exactly 2 outputs. One for the block reward and one for the witness commitment',
+    )
+  }
+
+* MERKLE:
+  let level = txids.map((txid) => Buffer.from(txid, 'hex').reverse().toString('hex')) ### IMP LINE
+'''
+
 def create_coinbase_transaction(witness_commitment, fees = 0):
     """
     Creates a coinbase transaction with the given witness commitment and fees.
