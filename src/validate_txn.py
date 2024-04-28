@@ -1,36 +1,10 @@
 import os
 import json
-import hashlib
 import scripts.p2sh
 import scripts.p2pkh
 import scripts.p2wpkh
 import helper.txn_info as txinfo
 import helper.converter as convert
-
-################
-## Txn Weight ##
-################
-def txn_weight(txnId):
-    tx_bytes = len(txinfo.create_raw_txn_data_full(txnId))//2
-    tx_weight = 4*(len(txinfo.create_raw_txn_data_min(txnId))//2) + (tx_bytes - len(txinfo.create_raw_txn_data_min(txnId))//2)
-    tx_virtual_weight = tx_weight/4
-
-    return [tx_bytes, tx_weight, tx_virtual_weight]
-
-##########
-## FEES ##
-##########
-def fees(txnId):
-    file_path = os.path.join('mempool', f'{txnId}.json') # file path
-    if os.path.exists(file_path):
-        # Read the JSON data from the file
-        with open(file_path, 'r') as file:
-            txn_data = json.load(file)
-
-    amt_vin = sum([vin["prevout"]["value"] for vin in txn_data["vin"]])
-    amt_vout = sum([vout["value"] for vout in txn_data["vout"]])
-
-    return amt_vin - amt_vout
 
 #######################
 ## Segwit/Non-Segwit ##
