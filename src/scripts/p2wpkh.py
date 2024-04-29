@@ -5,6 +5,20 @@ import coincurve
 from Crypto.Hash import RIPEMD160
 
 def validate_signature(signature, message, publicKey):
+    """
+    Validate a signature against a message using a public key.
+
+    @param signature : The signature to be validated.
+    @type  signature : str
+    @param message   : The message that was signed.
+    @type  message   : str
+    @param publicKey : The public key corresponding to the private key used for signing.
+    @type  publicKey : str
+
+    @return          : True if the signature is valid, False otherwise.
+    @rtype           : bool
+    """
+
     b_sig = bytes.fromhex(signature)
     b_msg = bytes.fromhex(message)
     b_pub = bytes.fromhex(publicKey)
@@ -83,12 +97,25 @@ def to_hash160(hex_input):
     return hash_160.hexdigest()
 
 def _validate_p2wpkh_txn(signature, pubkey, scriptpubkey_asm, txn_data):
+    """
+    Validate a Pay-to-Witness-Public-Key-Hash (P2WPKH) transaction.
+
+    @param signature        : The signature of the transaction.
+    @type  signature        : str
+    @param pubkey           : The public key used for the signature.
+    @type  pubkey           : str
+    @param scriptpubkey_asm : The assembly script of the script pubkey.
+    @type  scriptpubkey_asm : list of str
+    @param txn_data         : The transaction data.
+    @type  txn_data         : str
+
+    @return                 : A boolean indicating whether the transaction is valid.
+    @rtype                  : bool
+    """
     stack = []
 
     stack.append(signature)
     stack.append(pubkey)
-
-    # print(stack)
 
     for i in scriptpubkey_asm:
         if i == "OP_DUP":
@@ -100,9 +127,6 @@ def _validate_p2wpkh_txn(signature, pubkey, scriptpubkey_asm, txn_data):
         if i == "OP_HASH160":
             # print("===========")
             # print("OP_HASH160")
-            # sha = hashlib.sha256(bytes.fromhex(stack[-1])).hexdigest()
-            # hash_160 = hashlib.new('ripemd160')
-            # hash_160.update(bytes.fromhex(sha))
             hash_160 = to_hash160(stack[-1])
 
             stack.pop(-1)
@@ -128,11 +152,6 @@ def _validate_p2wpkh_txn(signature, pubkey, scriptpubkey_asm, txn_data):
                 der_sig = signature[:-2]
                 msg = txn_data + "01000000"
                 msg_hash = hashlib.sha256(bytes.fromhex(msg)).digest().hex()
-                # print(der_sig) 
-                # print(pubkey) 
-                # print("============VALIDAREA=================")
-                # print(msg)
-                # print(msg_hash)
                 return validate_signature(der_sig, msg_hash, pubkey)
                 # return True
 
@@ -146,12 +165,12 @@ def validate_p2wpkh_txn(witness, wit_scriptpubkey_asm, txn_data):
     wit_sig, wit_pubkey = witness[0], witness[1]
 
     pkh = wit_scriptpubkey_asm.split(" ")[-1]
-    # print(wit_sig, wit_pubkey, pkh)
-    # print("\n")
-    # print(txn_data)
     scriptpubkey_asm = ["OP_DUP", "OP_HASH160", "OP_PUSHBYTES_20", pkh, "OP_EQUALVERIFY", "OP_CHECKSIG"]
 
     return _validate_p2wpkh_txn(wit_sig, wit_pubkey,scriptpubkey_asm, txn_data)
+
+
+### TEST SCRIPT ###
 
 # filename = "0a3fd98f8b3d89d2080489d75029ebaed0c8c631d061c2e9e90957a40e99eb4c"
 # filename = "dcd45100f59948d0ba3031a55be2c131db24ab92daccb7a58696f3abccdcacca"
