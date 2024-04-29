@@ -145,4 +145,4 @@ def create_coinbase_transaction(witness_commitment, fees = 0):
     tx_data += f"{convert.to_little_endian(tx_template['locktime'], 4)}"
     # print(f"coinbase_txn_data(inside)::> {tx_data}")
 
-    return tx_data, convert.to_reverse_bytes_string(convert.to_hash256(txinfo.txid_dict(tx_template)))
+    return tx_data, txinfo.coinbase_txn_id(tx_template)
