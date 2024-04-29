@@ -54,50 +54,14 @@ def create_coinbase_transaction(witness_commitment, fees = 0):
     @return                      : A tuple containing the serialized transaction data and the reversed bytes string of the transaction ID.
     @rtype                       : tuple[str, str]
     """
+    
     # f595814a00000000 -> fees
     fees_le = convert.to_little_endian(fees, 8)
-    
-    ## COINBASE TEMPLATE ##
-    tx_template = {
-        "version": "01000000",
-        "marker": "00",
-        "flag": "01",
-        "inputcount": "01",
-        "inputs": [
-            {
-                "txid": "0000000000000000000000000000000000000000000000000000000000000000",
-                "vout": "ffffffff",
-                "scriptsigsize": "25",
-                "scriptsig": "03233708184d696e656420627920416e74506f6f6c373946205b8160a4256c0000946e0100",
-                "sequence": "ffffffff",
-            }
-        ],
-        "outputcount": "02",
-        "outputs": [
-            {
-                "amount": f"{fees_le}",
-                "scriptpubkeysize": "19",
-                "scriptpubkey": "76a914edf10a7fac6b32e24daa5305c723f3de58db1bc888ac",
-            },
-            {
-                "amount": "0000000000000000",
-                "scriptpubkeysize": "26",
-                "scriptpubkey": f"6a24aa21a9ed{witness_commitment}",
-            },
-        ],
-        "witness": [
-            {
-                "stackitems": "01",
-                "0": {
-                    "size": "20",
-                    "item": "0000000000000000000000000000000000000000000000000000000000000000",
-                },
-            }
-        ],
-        "locktime": "00000000",
-    }
 
-    tx_template_modified = {
+    #########################
+    # Coinbase txn template #
+    #########################
+    tx_template = {
         "version": 1,
         "marker": "00",
         "flag": "01",
@@ -135,39 +99,57 @@ def create_coinbase_transaction(witness_commitment, fees = 0):
         ],
         "locktime": 0,
     }
-    # Version
-    tx_data = tx_template["version"]
 
-    # Marker and Flag
+    ###########
+    # Version #
+    ###########
+    tx_data = f"{convert.to_little_endian(tx_template['version'],4)}"
+
+    ###################
+    # Marker and Flag #
+    ###################
     tx_data += tx_template["marker"] + tx_template["flag"]
 
-    # Input Count
+    ###############
+    # Input Count #
+    ###############
     tx_data += tx_template["inputcount"]
 
-    # Input
-    input_data = tx_template["inputs"][0]
+    #########
+    # Input #
+    #########
+    input_data = tx_template["vin"][0]
     tx_data += input_data["txid"]
-    tx_data += input_data["vout"]
-    tx_data += input_data["scriptsigsize"].zfill(2)
+    tx_data += f"{convert.to_little_endian(input_data['vout'], 4)}"
+    tx_data += f"{convert.to_compact_size(input_data['scriptsigsize'])}"
     tx_data += input_data["scriptsig"]
-    tx_data += input_data["sequence"]
+    tx_data += f"{convert.to_little_endian(input_data['sequence'], 4)}"
 
-    # Output Count
+    ################
+    # Output Count #
+    ################
     tx_data += tx_template["outputcount"]
 
-    # Outputs
-    for output in tx_template["outputs"]:
-        tx_data += output["amount"].zfill(16)
+    ###########
+    # Outputs #
+    ###########
+    for output in tx_template["vout"]:
+        tx_data += f"{convert.to_little_endian(output['value'], 8)}"
         tx_data += output["scriptpubkeysize"].zfill(2)
         tx_data += output["scriptpubkey"]
 
-    # Witness
+    ###########
+    # Witness #
+    ###########
     witness_data = tx_template["witness"][0]
     tx_data += witness_data["stackitems"]
     tx_data += witness_data["0"]["size"].zfill(2)
     tx_data += witness_data["0"]["item"]
 
-    # Locktime
-    tx_data += tx_template["locktime"]
+    ############
+    # Locktime #
+    ############
+    tx_data += f"{convert.to_little_endian(tx_template['locktime'], 4)}"
+    # print(f"coinbase_txn_data(inside)::> {tx_data}")
 
-    return tx_data, convert.to_reverse_bytes_string(convert.to_hash256(txinfo.txid_dict(tx_template_modified)))
+    return tx_data, convert.to_reverse_bytes_string(convert.to_hash256(txinfo.txid_dict(tx_template)))
