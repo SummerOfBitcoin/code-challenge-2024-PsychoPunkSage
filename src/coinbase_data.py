@@ -15,18 +15,22 @@ def calculate_witness_commitment(txn_files):
     @return         : The witness commitment calculated for the given transactions.
     @rtype          : str
     """
-    wtxids = [WTXID_COINBASE]
+    wtxids = [WTXID_COINBASE] # must begin with wtxid of Coinbase txn
+
+    # Calculate wtxid of list of transactions
     for tx in txn_files:
         w_txid = txinfo.wtxid(tx)
         wtxids.append(w_txid)
-    # print(f"WTXIDS::> {wtxids}")
+
+    # Get merkle root of wtxids
     witness_root = merkle.merkle_root_calculator(wtxids)
     print(f"witness root::> {witness_root}")
 
+    # Append witness reserved value at the end.
     witness_reserved_value_hex = WITNESS_RESERVED_VALUE_HEX
     combined_data = witness_root + witness_reserved_value_hex
 
-    # Calculate the hash256
+    # Calculate the hash256 to get witness commitment
     witness_commitment = convert.to_hash256(combined_data)
     return witness_commitment
 
@@ -54,7 +58,7 @@ def create_coinbase_transaction(witness_commitment, fees = 0):
     @return                      : A tuple containing the serialized transaction data and the reversed bytes string of the transaction ID.
     @rtype                       : tuple[str, str]
     """
-    
+
     # f595814a00000000 -> fees
     fees_le = convert.to_little_endian(fees, 8)
 
