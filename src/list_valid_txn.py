@@ -1,11 +1,6 @@
 import os
 import validate_txn
 
-'''
-@title read transaction form mempool
-@notice parses each json object in `mempool` and append an internal list with all txn_ids
-@return list of transaction ids
-'''
 def read_transactions():
     """
     Reads transaction IDs from files in the mempool directory.
