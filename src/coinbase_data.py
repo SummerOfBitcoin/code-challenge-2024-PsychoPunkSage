@@ -56,6 +56,8 @@ def create_coinbase_transaction(witness_commitment, fees = 0):
     """
     # f595814a00000000 -> fees
     fees_le = convert.to_little_endian(fees, 8)
+    
+    ## COINBASE TEMPLATE ##
     tx_template = {
         "version": "01000000",
         "marker": "00",
