@@ -120,40 +120,18 @@ def validate_p2sh_txn_adv(inner_redeemscript_asm, scriptpubkey_asm, scriptsig_as
         if 'OP_CHECKMULTISIG' in item:
             msg = txn_data + "01000000"
             msg_hash = hashlib.sha256(bytes.fromhex(msg)).hexdigest()
-            return True
-            
-    # print(redeem_stack)
-    # print(f"\nmsg::> {msg}")
-    # print(f"\nmsh_hash::> {msg_hash}")
-
 
 # 0cd144c7db2aba75da0b9a09c949df35898ad277fbf24a9c6ef33a3424aedd3a ==> Simple
-# 0dd03993f8318d968b7b6fdf843682e9fd89258c186187688511243345c2009f ==> Advanced
 # ff0717b6f0d2b2518cfb85eed7ccea44c3a3822e2a0ce6e753feecf68df94a7f ==> Simple LOOOOONG
 
-# ADVANCED Txn
-# filename = "0dd03993f8318d968b7b6fdf843682e9fd89258c186187688511243345c2009f" 
-# file_path = os.path.join('mempool', f"{filename}.json") # file path
-# if os.path.exists(file_path):
-#     with open(file_path, 'r') as file: 
-#         txn_data = json.load(file)
-
-# redeemscript_asm = txn_data["vin"][0]["inner_redeemscript_asm"]
-# scriptpubkey_asm = txn_data["vin"][0]["prevout"]["scriptpubkey_asm"]
-# scriptsig_asm = txn_data["vin"][0]["scriptsig_asm"]
-# txn_data = legacy_txn_data(filename)
-# # print(f"txn_data: {txn_data}\n")
-# print(f"p2sh(adv)::> {validate_p2sh_txn_adv(redeemscript_asm, scriptpubkey_asm, scriptsig_asm, txn_data)}")
-
-
-# BASIC Txn
 # filename = "0cd144c7db2aba75da0b9a09c949df35898ad277fbf24a9c6ef33a3424aedd3a" 
-# file_path = os.path.join('mempool', f"{filename}.json") # file path
-# if os.path.exists(file_path):
-#     with open(file_path, 'r') as file: 
-#         txn_data = json.load(file)
+filename = "ff0717b6f0d2b2518cfb85eed7ccea44c3a3822e2a0ce6e753feecf68df94a7f" 
+file_path = os.path.join('mempool', f"{filename}.json") # file path
+if os.path.exists(file_path):
+    with open(file_path, 'r') as file: 
+        txn_data = json.load(file)
 
-# redeemscript_asm = txn_data["vin"][3]["inner_redeemscript_asm"]
-# scriptpubkey_asm = txn_data["vin"][3]["scriptsig_asm"]
+redeemscript_asm = txn_data["vin"][3]["inner_redeemscript_asm"]
+scriptpubkey_asm = txn_data["vin"][3]["scriptsig_asm"]
 
-# print(f"p2sh(basic)::> {validate_p2sh_txn_basic(redeemscript_asm, scriptpubkey_asm), scriptsig_asm}")
+print(f"p2sh(basic)::> {validate_p2sh_txn_basic(redeemscript_asm, scriptpubkey_asm)}")
