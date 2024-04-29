@@ -2,10 +2,20 @@ import os
 import json
 import helper.converter as convert
 
-def create_raw_txn_data_min(txn_id):
+def create_raw_txn_data_min(txn_file):
+    """
+    Create raw transaction data from a transaction ID.
+    
+    @param txn_file: The ID of the transaction for which raw data is to be created.
+    @type  txn_file: str
+
+    @return        : The raw transaction data as a hexadecimal string.
+    @rtype         : str
+    """
+
     txn_data = ""
 
-    file_path = os.path.join("mempool", f"{txn_id}.json")
+    file_path = os.path.join("mempool", f"{txn_file}.json")
     if os.path.exists(file_path):
         with open(file_path, 'r') as f:
             data = json.load(f)
@@ -32,12 +42,24 @@ def create_raw_txn_data_min(txn_id):
 
             # Locktime
             txn_data += f"{convert.to_little_endian(data['locktime'], 4)}"
+    else:
+        ValueError(f"ERROR (txn_info.py)::> File {txn_file}.json Does not exist in MEMPOOL")
     return txn_data
 
-def create_raw_txn_data_full(txn_id):
+def create_raw_txn_data_full(txn_file):
+    """
+    Create raw transaction data from a transaction ID.
+    
+    @param txn_file: The ID of the transaction for which raw data is to be created.
+    @type  txn_file: str
+
+    @return        : The raw transaction data in hexadecimal format. Includes MARKER + FLAGS + WITNESS_DATA
+    @rtype         : str
+    """
+
     txn_hash = ""
 
-    file_path = os.path.join("mempool", f"{txn_id}.json")
+    file_path = os.path.join("mempool", f"{txn_file}.json")
     if os.path.exists(file_path):
         with open(file_path, 'r') as f:
             data = json.load(f)
@@ -75,27 +97,23 @@ def create_raw_txn_data_full(txn_id):
 
             # Locktime
             txn_hash += f"{convert.to_little_endian(data['locktime'], 4)}"
+    else:
+        ValueError(f"ERROR (txn_info.py)::> File {txn_file}.json Does not exist in MEMPOOL")
     return txn_hash
 
-def get_txn_id(txn_id):
-    txn_data = create_raw_txn_data_min(txn_id)
-    return convert.to_hash256(txn_data)
+def txid(txn_file):
+    """
+    Calculate the transaction ID (Txn_ID) based on the contents of a transaction file.
+    
+    @param txn_file: The name of the transaction file (without extension) located in the 'mempool' directory.
+    @type  txn_file: str
 
-'''
-wTXID(Legacy) == TXID(Legacy) ===> reverse_bytes(SHA256(txn_data))
-
-wTXID Commitment === HASH256(merkle root for all of the wTXIDs <witness_root_hash>  | witness_reserved_value)
-        --> Must have `COINBASE_TXN` at the begining
-
-
-p2pkh ::> 0a331187bb44a28b342bd2fdfd2ff58147f0e4e43444b5efd89c71f3176caea6.json :: 0a331187bb44a28b342bd2fdfd2ff58147f0e4e43444b5efd89c71f3176caea6
-p2wpkh::> 0a3fa2941f316cbf05d7a708f180a4f7cd8034f33ccfea77091252354da41e61.json :: 0a3fa2941f316cbf05d7a708f180a4f7cd8034f33ccfea77091252354da41e61
-'''
-
-def txid(txn_id):
+    @return        : The transaction ID (Txn_ID) of the transaction.
+    @rtype         : str
+    """
     txn_hash = ""
 
-    file_path = os.path.join("mempool", f"{txn_id}.json")
+    file_path = os.path.join("mempool", f"{txn_file}.json")
     if os.path.exists(file_path):
         with open(file_path, 'r') as f:
             data = json.load(f)
@@ -125,10 +143,20 @@ def txid(txn_id):
             txn_hash += f"{convert.to_little_endian(data['locktime'], 4)}"
     return convert.to_reverse_bytes_string(convert.to_hash256(txn_hash))
 
-def wtxid(txn_id):
+def wtxid(txn_file):
+    """
+    Calculate the WTXID (Witness Transaction ID) for a given transaction file.
+    
+    @param txn_file: The filename of the transaction file (without extension).
+    @type  txn_file: str
+
+    @return        : The WTXID (Witness Transaction ID) of the transaction.
+    @rtype         : str
+    """
+
     txn_hash = ""
 
-    file_path = os.path.join("mempool", f"{txn_id}.json")
+    file_path = os.path.join("mempool", f"{txn_file}.json")
     if os.path.exists(file_path):
         with open(file_path, 'r') as f:
             data = json.load(f)
@@ -168,7 +196,16 @@ def wtxid(txn_id):
             txn_hash += f"{convert.to_little_endian(data['locktime'], 4)}"
     return convert.to_reverse_bytes_string(convert.to_hash256(txn_hash))
 
-def txid_dict(txn_dict):
+def coinbase_txn_id(txn_dict):
+    """
+    Calculate the transaction ID (Txn_ID) of a given transaction dictionary - especially made for coinbase transaction.
+
+    @param txn_dict: The transaction dictionary containing transaction details.
+    @type  txn_dict: dict
+
+    @return        : The transaction ID as a hexadecimal string.
+    @rtype         : str
+    """
     txn_hash = ""
     data = txn_dict
     # Version
@@ -196,24 +233,4 @@ def txid_dict(txn_dict):
     # Locktime
     txn_hash += f"{convert.to_little_endian(data['locktime'], 4)}"
     # print(f"coinbase_txn_hash(dict)  ::> {txn_hash}")
-    return txn_hash
-
-# filename = "e4020c97eb2eb68055362d577e7068a128ceb887a33260062bb3ba2820b9bd30"
-# filename = "c1b27a173feead93944952612148c8972e5837d4d564dda8b96639561402ad2e"
-# filename = "0a8b21af1cfcc26774df1f513a72cd362a14f5a598ec39d915323078efb5a240"
-# print(f"txn_hash = {wtxid(filename)}\n")
-# tx_id = (convert.to_hash256(wtxid(filename)))
-# print(f"txid::> {convert.to_reverse_bytes_string(tx_id)}")
-'''
-NON_SEGWIT
-txid = convert.to_hash256(create_raw_txn_data_full("0a8b21af1cfcc26774df1f513a72cd362a14f5a598ec39d915323078efb5a240"))
-
-896aeeb4d8af739da468ad05932455c639073fa3763d3256ff3a2c86122bda4e >> Actual txn_id
-4eda2b12862c3aff56323d76a33f0739c655249305ad68a49d73afd8b4ee6a89.json >> present in valid_mempool
-
-
-SEGWIT::
-tx_id = (convert.to_hash256(txid("e4020c97eb2eb68055362d577e7068a128ceb887a33260062bb3ba2820b9bd30")))
-
-0a3fa2941f316cbf05d7a708f180a4f7cd8034f33ccfea77091252354da41e61.json >> present in valid_mempool
-'''
+    return convert.to_reverse_bytes_string(convert.to_hash256(txn_hash))
