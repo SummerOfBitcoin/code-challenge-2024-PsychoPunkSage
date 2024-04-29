@@ -107,7 +107,7 @@ def main():
         wt += metrics.txn_weight(transactions[n])[1]
         n += 1
     
-    print(f"Total transactions: {len(transactions[:n-1])}")
+    print(f"Total transactions: {len(transactions[:n-1])}") # -1 for safety parameter.
 
     # Block Mining
     block_header, coinbase_tx_hex, coinbase_txid, txids, _ = mine_block(transactions[: n-1])
