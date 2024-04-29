@@ -195,6 +195,7 @@ def txid_dict(txn_dict):
 
     # Locktime
     txn_hash += f"{convert.to_little_endian(data['locktime'], 4)}"
+    # print(f"coinbase_txn_hash(dict)  ::> {txn_hash}")
     return txn_hash
 
 # filename = "e4020c97eb2eb68055362d577e7068a128ceb887a33260062bb3ba2820b9bd30"
