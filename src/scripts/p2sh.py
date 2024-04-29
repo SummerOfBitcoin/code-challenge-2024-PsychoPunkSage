@@ -56,6 +56,17 @@ def legacy_txn_data(txn_id):
     return txn_hash
 
 def validate_p2sh_txn_basic(inner_redeemscript_asm, scriptpubkey_asm):
+    """
+    Validate a basic Pay-to-Script-Hash (P2SH) transaction.
+
+    @param inner_redeemscript_asm : The assembly representation of the inner redeem script.
+    @type  inner_redeemscript_asm : str
+    @param scriptpubkey_asm       : The assembly representation of the script public key.
+    @type  scriptpubkey_asm       : str
+
+    @return                       : A boolean value indicating whether the transaction is valid.
+    @rtype                        : bool
+    """
     inner_script = inner_redeemscript_asm.split(" ")
     scriptpubkey = scriptpubkey_asm.split(" ")
     if len(inner_script) > 3:
@@ -92,6 +103,7 @@ def validate_p2sh_txn_basic(inner_redeemscript_asm, scriptpubkey_asm):
         
         if i == "OP_EQUAL":
             return stack[-1] == stack[-2]
+    return True
 
 def validate_p2sh_txn_adv(inner_redeemscript_asm, scriptpubkey_asm, scriptsig_asm, txn_data):
     inner_redeemscript = inner_redeemscript_asm.split(" ")
@@ -120,18 +132,14 @@ def validate_p2sh_txn_adv(inner_redeemscript_asm, scriptpubkey_asm, scriptsig_as
         if 'OP_CHECKMULTISIG' in item:
             msg = txn_data + "01000000"
             msg_hash = hashlib.sha256(bytes.fromhex(msg)).hexdigest()
-
-# 0cd144c7db2aba75da0b9a09c949df35898ad277fbf24a9c6ef33a3424aedd3a ==> Simple
-# ff0717b6f0d2b2518cfb85eed7ccea44c3a3822e2a0ce6e753feecf68df94a7f ==> Simple LOOOOONG
-
+ 
 # filename = "0cd144c7db2aba75da0b9a09c949df35898ad277fbf24a9c6ef33a3424aedd3a" 
-filename = "ff0717b6f0d2b2518cfb85eed7ccea44c3a3822e2a0ce6e753feecf68df94a7f" 
-file_path = os.path.join('mempool', f"{filename}.json") # file path
-if os.path.exists(file_path):
-    with open(file_path, 'r') as file: 
-        txn_data = json.load(file)
+# file_path = os.path.join('mempool', f"{filename}.json") # file path
+# if os.path.exists(file_path):
+#     with open(file_path, 'r') as file: 
+#         txn_data = json.load(file)
 
-redeemscript_asm = txn_data["vin"][3]["inner_redeemscript_asm"]
-scriptpubkey_asm = txn_data["vin"][3]["scriptsig_asm"]
+# redeemscript_asm = txn_data["vin"][3]["inner_redeemscript_asm"]
+# scriptpubkey_asm = txn_data["vin"][3]["scriptsig_asm"]
 
-print(f"p2sh(basic)::> {validate_p2sh_txn_basic(redeemscript_asm, scriptpubkey_asm)}")
+# print(f"p2sh(basic)::> {validate_p2sh_txn_basic(redeemscript_asm, scriptpubkey_asm)}")
