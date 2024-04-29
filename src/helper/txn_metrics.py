@@ -46,6 +46,3 @@ def fees(txn_filename):
     amt_vout = sum([vout["value"] for vout in txn_data["vout"]])
 
     return amt_vin - amt_vout
-
-# print(f"wt::> {txn_weight('fff94cf7d76888cf7760eba673785588af33421fd7f39e33788c3a56eb1ac41f')}")
-# print(f"fees::> {fees('fff94cf7d76888cf7760eba673785588af33421fd7f39e33788c3a56eb1ac41f')}")
