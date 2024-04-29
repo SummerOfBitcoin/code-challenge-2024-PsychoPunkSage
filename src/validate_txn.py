@@ -6,9 +6,6 @@ import scripts.p2wpkh
 import helper.txn_info as txinfo
 import helper.converter as convert
 
-#######################
-## Segwit/Non-Segwit ##
-#######################
 def _is_segwit(txn_id):
     """
     Checks if a transaction identified by `txn_id` is a SegWit transaction.
@@ -22,9 +19,6 @@ def _is_segwit(txn_id):
     if txn_data[8:12] == "0001":
         return True
     return False
-
-## TEST SCRIPT
-# print(f"_is_segwit::> {_is_segwit('dcd45100f59948d0ba3031a55be2c131db24ab92daccb7a58696f3abccdcacca')}")
 
 def validate(txnId):
     """
