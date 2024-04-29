@@ -2,6 +2,9 @@ import helper.txn_info as txinfo
 import helper.converter as convert
 import helper.merkle_root as merkle
 
+###############
+## CONSTANTS ##
+###############
 WTXID_COINBASE = bytes(32).hex()
 WITNESS_RESERVED_VALUE_HEX = '0000000000000000000000000000000000000000000000000000000000000000'
 
@@ -33,20 +36,6 @@ def calculate_witness_commitment(txn_files):
     # Calculate the hash256 to get witness commitment
     witness_commitment = convert.to_hash256(combined_data)
     return witness_commitment
-
-'''
-Critical comments::>
-
-* CONBASE
-if (coinbaseTx.outs.length !== 2) {
-    throw new Error(
-      'Coinbase transaction must have exactly 2 outputs. One for the block reward and one for the witness commitment',
-    )
-  }
-
-* MERKLE:
-  let level = txids.map((txid) => Buffer.from(txid, 'hex').reverse().toString('hex')) ### IMP LINE
-'''
 
 def create_coinbase_transaction(witness_commitment, fees = 0):
     """
