@@ -7,6 +7,12 @@ import validate_txn
 @return list of transaction ids
 '''
 def read_transactions():
+    """
+    Reads transaction IDs from files in the mempool directory.
+
+    @return : List of transaction IDs. Each transaction ID corresponds to a file name in the mempool directory.
+    @rtype  : list
+    """
     txn_ids = []
     mempool_dir = "mempool"
     try:
@@ -20,6 +26,12 @@ def read_transactions():
         return None
 
 def list_valid_txn():
+    """
+    Lists valid transactions from the mempool.
+
+    @return : List of valid transaction files. Transactions are sorted with SEGWIT transactions at the beginning and NON-SEGWIT transactions at the end.
+    @rtype  : list
+    """
     valid_txn_files = []
     unchecked_txn_ids = read_transactions()
     for txn_file_name in unchecked_txn_ids:
@@ -32,4 +44,4 @@ def list_valid_txn():
             valid_txn_files.append(txn_file_name)
     return valid_txn_files
 
-print(len(list_valid_txn()))
+# print(len(list_valid_txn()))
