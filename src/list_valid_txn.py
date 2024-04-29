@@ -43,5 +43,3 @@ def list_valid_txn():
             # Adding NON-SEGWIT txn at last to give it less priority over SEGWIT tx
             valid_txn_files.append(txn_file_name)
     return valid_txn_files
-
-# print(len(list_valid_txn()))
