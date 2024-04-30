@@ -115,3 +115,21 @@ src
       * My workflow prioritizes the inclusion of verified Segwit transactions in the block ahead of non-Segwit transactions. This preference is rooted in the fact that Segwit transactions generally have lower weight compared to non-Segwit transactions. By prioritizing Segwit transactions, I aim to maximize the fee collection potential, as more transactions can be accommodated in the block due to their lower weight. This strategic approach enables me to generate higher fees by capitalizing on the increased transaction throughput facilitated by Segwit transactions.
       * While non-Segwit transactions may occasionally offer significantly higher fees despite their higher weight, optimizing transaction selection involves considering various factors. One approach is leveraging a straightforward machine learning model to explore potential transaction combinations, aiming to identify a set that maximizes fee revenue while minimizing overall weight.
 
+## **Conclusion:**
+
+- The provided problem statement was both intriguing and demanding. It offered a valuable opportunity to gain practical experience with the inner workings of the Bitcoin system. By implementing validation scripts for various transactions, performing cryptographic validation, and simulating block mining, I gained a deeper understanding of the intricacies involved. This project solidified the crucial distinction between theoretical knowledge and practical implementation.
+
+- The experience significantly enhanced my skillset, particularly in utilizing cryptographic functions. Moreover, it provided firsthand insight into the robustness of Bitcoin's cryptographic security. Overall, working on this project proved to be an immensely rewarding experience. While the initial challenges seemed daunting, I was able to persevere and ultimately achieve success.
+
+- **Future Imrovements:**
+  - Implement validation for additional transaction types beyond the currently supported ones. This includes `P2TR` and `P2WSH` transactions, ensuring broader compatibility with the evolving Bitcoin ecosystem.
+  - Integrate a mechanism to identify the most cost-effective transactions. This could involve:
+      * *Weight-Based Analysis*: Prioritize transactions with lower weight (amount of data they occupy on the blockchain), leading to incorporate more transactions.
+      * *Fee Rate Optimization*: Employ a simple Machine Learning (ML) model to predict optimal set of transactions to maximize rewards.
+- **Reference:**
+  - [learmebitcoin](https://learnmeabitcoin.com/)
+  - [OP_CHECKSIG](https://en.bitcoin.it/wiki/OP_CHECKSIG)
+  - [Sig Validation](https://bitcoin.stackexchange.com/questions/32305/how-does-the-ecdsa-verification-algorithm-work-during-transaction)
+  - [deserializer](https://rsbondi.github.io/btc-adventure/)
+  - Grokking Book
+  - Lots of help from `Discord Assignment channel`
