@@ -101,6 +101,7 @@ def main():
         raise ValueError("No transcations are there... Please add transactions")
 
     # Only include transactions till (wt < 4000000)
+    print(f"Transactions Validated: {len(transactions)}")
     n = 0
     wt = 0
     while wt < 4000000:
