@@ -95,3 +95,23 @@ src
 ### Work-flow:
 ![Work-flow diagram](<image/workflow.jpg>)
 - from the above diagram you can see how different components of my code interact with each-other at runtime.
+
+## **Results and Performance:**
+
+> **Result logs**
+
+|                        |                                                                  |
+| ---------------------- | ---------------------------------------------------------------- |
+| Transactions Validated | 3968                                                             |
+| Total transactions     | 2284                                                             |
+| Witness Root           | 37721af725740a34084aa123ae52754ae1a16c16ffb7c510b61257d2089f35da |
+| Witness Commitment     | 11f4eb2e023708d315aa69a4529709e519d35df82580ca05550031e44fd2d594 |
+| Fees Collected         | 17076156                                                         |
+| Nonce                  | 109007                                                           |
+
+  - As observed, the code successfully validates a total of `3968` transactions. However, adhering to the `MAX_WEIGHT` (4000000) restriction, only `2284` transactions (weight: **3978643** and fees **17076156**) are incorporated into the block. Notably, Segwit transactions take precedence in block inclusion due to their lower weight, followed by non-Segwit transactions. Since I have validated only one type Segwit transactions i.e. `p2wpkh`, most of the included transactions are **p2wpkh**.
+
+  - **Efficiency:**
+      * My workflow prioritizes the inclusion of verified Segwit transactions in the block ahead of non-Segwit transactions. This preference is rooted in the fact that Segwit transactions generally have lower weight compared to non-Segwit transactions. By prioritizing Segwit transactions, I aim to maximize the fee collection potential, as more transactions can be accommodated in the block due to their lower weight. This strategic approach enables me to generate higher fees by capitalizing on the increased transaction throughput facilitated by Segwit transactions.
+      * While non-Segwit transactions may occasionally offer significantly higher fees despite their higher weight, optimizing transaction selection involves considering various factors. One approach is leveraging a straightforward machine learning model to explore potential transaction combinations, aiming to identify a set that maximizes fee revenue while minimizing overall weight.
+
